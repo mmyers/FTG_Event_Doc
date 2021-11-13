@@ -1,4 +1,4 @@
-###For the Glory Event Documentation Generator
+### For the Glory Event Documentation Generator
 
 This program parses historical and random events in For the Glory or Europa Universalis II and creates an interlinked set of HTML documention pages like [this](http://crystalempiregames.com/events/eventdoc.htm). This makes it easier to understand event chains like [The Death of Charles the Bold of Burgundy](http://crystalempiregames.com/events/eventdoc/major_bur.txt.htm#evt3597).
 
