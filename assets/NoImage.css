@@ -1,0 +1,174 @@
+/* Dark theme with gold borders for events. Similar to AGCEEP style but with pure CSS. */
+
+
+/*****************************
+ * Error
+ *****************************/
+
+.error {
+	color: red;
+	font-weight: bold;
+}
+
+
+/*****************************
+ * Mouseover visual cues
+ *****************************/
+
+.monarch {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.leader {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.province {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.country {
+	/* Left blank for now. */
+}
+
+
+/*****************************
+ * Events
+ *****************************/
+
+.event {
+	background-color: black;
+	border: thick ridge gold;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	margin-bottom: 20px;
+}
+
+.event_title {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 16px;
+	color: gold;
+}
+
+ul.trigger {
+	color: #B0B0B0;
+}
+
+.action_title {
+	font-size: 12px;
+	color: gold;
+}
+
+.event_head h2 {
+	font-size: 1.3em;
+	padding: 15px;
+	margin-bottom: -15px;
+}
+
+.event_body {
+	margin: 0;
+	margin-top: -15px;
+	padding: 15px;
+}
+
+.event_footer {
+}
+
+.event_footer p {
+	display: block;
+	padding: 15px;
+	margin: -15px 0 0 0;
+}
+
+
+/*****************************
+ * Indices
+ *****************************/
+
+.index {
+	background-color: #030E13;
+	border: medium ridge gold;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	margin-bottom: 20px;
+}
+
+.index_title {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 16px;
+	color: gold;
+}
+
+.index_head h2 {
+	font-size: 1.3em;
+	padding: 15px;
+	margin-bottom: -15px;
+}
+
+.index_body {
+	margin: 0;
+	margin-top: -15px;
+	padding: 15px;
+}
+
+.index_footer {
+}
+
+.index_footer p {
+	display: block;
+	padding: 15px;
+	margin-top: -15px;
+}
+
+.eventlist {
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+/*****************************
+ * Standard elements
+ *****************************/
+
+body {
+	background-color: #062938;
+	color: white;
+	font-family: tahoma,verdana,arial;
+	font-size: 12px;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+}
+
+a:hover {
+	color: gold;
+}
+
+.a_und {
+	text-decoration: underline;
+}
+
+h3 {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 14px;
+}
+
+h4 {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 12px;
+}
+
+hr {
+	color: gold;
+	background-color: gold;
+}
+
+.date {
+	color: lightskyblue;
+}

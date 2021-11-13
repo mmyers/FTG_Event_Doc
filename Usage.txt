@@ -1,0 +1,64 @@
+Usage: java <prog name> <args>
+where <args> consists of one or more of the following:
+    -f, --eventfile <filename>
+        Specifies that the list of events is to be read from the specified file.
+        This file should be in the standard events.txt form (event = "xxx").
+        The filename is relative to the base directory, so "Db\events.txt" will
+        usually work.
+        More than one file can be specified.
+    -x, --text <filename>
+        Specifies that event text should be read from the specified file. This
+        should be a standard text.csv file, and the first column after the key
+        will be used as the value.
+        The default value is /config/text.csv.
+    -b, --basedir <directory>
+        Specifies that the given directory is the base directory of the EU2
+        installation.
+        If unspecified, the program will assume it is in the EU2 directory.
+    -m, --moddir <name>
+        Specifies that the given name is the name of a mod in the base directory
+        and should be used when possible.
+    -o, --output <directory>
+        Specifies that output should be placed into the given directory.
+        A subdirectory named "eventdoc" will be created to hold the generated
+        files other than the index.
+        The default value is the current directory.
+    -t, --title <format string>
+        Specifies to use the given title for the generated files. If the string
+        contains %s, this is where the page name is placed.
+        The default is "%s -- EU2 Event Documentation".
+        Note that the % sign is reserved in batch files; %%s is necessary instead.
+    --custom-header
+        Specifies that custom HTML from the file 'header.htm' will be inserted into
+        the end of the header of the generated files.
+        Relative links should not be used, because not all generated pages are in the
+        same directory.
+        Note that this is inserted verbatim, so it should not include <html> or <head>.
+    --custom-page-top
+        Specifies that custom HTML from the file 'pagetop.htm' will be inserted into
+        the generated files (including the index) at the start of the body.
+        Note that this is inserted verbatim, so it should not include <html></html>.
+    --custom-page-bottom
+        Specifies that custom HTML from the file 'pagebottom.htm' will be inserted into
+        the generated files (including the index) at the end of the body.
+        Note that this is inserted verbatim, so it should not include <html></html>.
+    --custom-divider
+        Specifies that custom HTML from the file 'betweenevents.htm' will be inserted
+        into the generated files between events.
+        Note that this is inserted verbatim, so it should not include <html></html>.
+        Note also that this might cause layout problems on some browsers.
+    --image-dir <directory>
+        Specifies that any images will be placed in the given directory (relative to the base).
+        The default is to put them in the base directory.
+    --css-dir <directory>
+        Specifies that the generated files will expect eventdoc.css in the given directory
+        (relative to the base) rather than in the base directory.
+    --js-dir <directory>
+        Specifies that the generated files will expect eventdoc.js in the given directory
+        (relative to the base) rather than in the base directory.
+    --no-leader-check
+        Indicates not to perform any checks of leader commands.
+    --no-monarch-check
+        Indicates not to perform any checks of monarch commands.
+    -h, --help
+        Prints this help.

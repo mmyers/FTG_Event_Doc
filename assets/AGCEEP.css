@@ -1,0 +1,176 @@
+/* Matches the styling of agceep.net, very close to actual in-game event styling. */
+
+
+/*****************************
+ * Error
+ *****************************/
+
+.error {
+	color: red;
+	font-weight: bold;
+}
+
+
+/*****************************
+ * Mouseover visual cues
+ *****************************/
+
+.monarch {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.leader {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.province {
+	cursor: help;
+	border-bottom: 1px dotted white;
+}
+
+.country {
+	/* Left blank for now. */
+}
+
+
+/*****************************
+ * Events
+ *****************************/
+
+.event {
+	background: url(corner-1.png) top left no-repeat;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	margin-bottom: 20px;
+}
+
+.event_title {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 16px;
+	color: gold;
+}
+
+ul.trigger {
+	color: #B0B0B0;
+}
+
+.action_title {
+	font-size: 12px;
+	color: gold;
+}
+
+.event_head h2 {
+	background: url(corner-2.png) top right no-repeat;
+	font-size: 1.3em;
+	padding: 15px;
+	margin-bottom: -15px;
+}
+
+.event_body {
+	background: url(right.png) top right repeat-y;
+	margin: 0;
+	margin-top: -15px;
+	padding: 15px;
+}
+
+.event_footer {
+	background: url(corner-3.png) bottom left no-repeat;
+}
+
+.event_footer p {
+	background: url(corner-4.png) bottom right no-repeat;
+	display: block;
+	padding: 15px;
+	margin: -15px 0 0 0;
+}
+
+
+/*****************************
+ * Indices
+ *****************************/
+
+.index {
+	background: url(corner-1.png) top left no-repeat;
+	margin-left: 7.5%;
+	margin-right: 7.5%;
+	margin-bottom: 20px;
+}
+
+.index_title {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 16px;
+	color: gold;
+}
+
+.index_head h2 {
+	background: url(corner-2.png) top right no-repeat;
+	font-size: 1.3em;
+	padding: 15px;
+	margin-bottom: -15px;
+}
+
+.index_body {
+	background: url(right.png) top right repeat-y;
+	margin: 0;
+	margin-top: -15px;
+	padding: 15px;
+}
+
+.index_footer {
+	background: url(corner-3.png) bottom left no-repeat;
+}
+
+.index_footer p {
+	background: url(corner-4.png) bottom right no-repeat;
+	display: block;
+	padding: 15px;
+	margin-top: -15px;
+}
+
+.eventlist {
+	padding-left: 1em;
+	padding-right: 1em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+}
+
+/*****************************
+ * Standard elements
+ *****************************/
+
+body {
+	background-color: #062938;
+	color: white;
+	font-family: tahoma,verdana,arial;
+	font-size: 12px;
+}
+
+a {
+	color: white;
+	text-decoration: none;
+}
+
+a:hover {
+	color: gold;
+}
+
+.a_und {
+	text-decoration: underline;
+}
+
+h3 {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 14px;
+}
+
+h4 {
+	font-family: "Trebuchet MS",tahoma,verdana,arial;
+	font-size: 12px;
+}
+
+hr {
+	color: gold;
+	background-color: gold;
+}

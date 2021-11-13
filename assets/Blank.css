@@ -1,0 +1,109 @@
+/* Extremely basic template */
+
+
+/*****************************
+ * Error
+ *****************************/
+
+.error {
+}
+
+
+/*****************************
+ * Mouseover visual cues
+ *****************************/
+
+.monarch {
+}
+
+.leader {
+}
+
+.province {
+}
+
+.country {
+}
+
+
+/*****************************
+ * Events
+ *****************************/
+
+.event {
+}
+
+.event_title {
+}
+
+ul.trigger {
+}
+
+.action_title {
+}
+
+.event_head h2 {
+}
+
+.event_body {
+}
+
+.event_footer {
+}
+
+.event_footer p {
+}
+
+
+/*****************************
+ * Indices
+ *****************************/
+
+.index {
+}
+
+.index_title {
+}
+
+.index_head h2 {
+}
+
+.index_body {
+}
+
+.index_footer {
+}
+
+.index_footer p {
+}
+
+.eventlist {
+}
+
+/*****************************
+ * Standard elements
+ *****************************/
+
+body {
+}
+
+a {
+}
+
+a:hover {
+}
+
+.a_und {
+}
+
+h3 {
+}
+
+h4 {
+}
+
+hr {
+}
+
+.date {
+}

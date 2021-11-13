@@ -1,0 +1,405 @@
+Reading text from C:\Games\For the Glory\localisation\English\countries.csv
+Reading text from C:\Games\For the Glory\localisation\English\cultures.csv
+Reading text from C:\Games\For the Glory\localisation\English\events.csv
+Reading text from C:\Games\For the Glory\localisation\English\geography.csv
+Reading text from C:\Games\For the Glory\localisation\English\goods.csv
+Reading text from C:\Games\For the Glory\localisation\English\interface.csv
+Reading text from C:\Games\For the Glory\localisation\English\misc.csv
+Reading text from C:\Games\For the Glory\localisation\English\provinces.csv
+Reading text from C:\Games\For the Glory\localisation\English\religions.csv
+Reading text from C:\Games\For the Glory\localisation\English\scenarios.csv
+Reading text from C:\Games\For the Glory\localisation\English\technologies.csv
+Reading text from C:\Games\For the Glory\localisation\English\terrains.csv
+Reading text from C:\Games\For the Glory\localisation\English\addendum.csv
+Parsing monarchs from db/monarchs
+Finished monarchs
+Parsing leaders from db/leaders
+Finished leaders
+Parsing provinces from C:\Games\For the Glory\db/map/provinces.txt
+Loading C:\Games\For the Glory\db/map/provinces.txt.
+Loading took 86417600 ns.
+
+Loading geography from C:\Games\For the Glory\db/map/geography.txt
+Loading C:\Games\For the Glory\db/map/geography.txt.
+Loading took 3365899 ns.
+
+Loading events from C:\Games\For the Glory\Db\events.txt
+Loading C:\Games\For the Glory\Db\events.txt.
+Loading took 824300 ns.
+
+Parsing C:\Games\For the Glory\db\events\major_akk.txt
+Parsing C:\Games\For the Glory\db\events\major_alb.txt
+Parsing C:\Games\For the Glory\db\events\major_ald.txt
+Parsing C:\Games\For the Glory\db\events\major_ann.txt
+Parsing C:\Games\For the Glory\db\events\major_arg.txt
+Parsing C:\Games\For the Glory\db\events\major_ayu.txt
+Parsing C:\Games\For the Glory\db\events\major_bad.txt
+Parsing C:\Games\For the Glory\db\events\major_bay.txt
+Parsing C:\Games\For the Glory\db\events\major_boh.txt
+Parsing C:\Games\For the Glory\db\events\major_bol.txt
+Parsing C:\Games\For the Glory\db\events\major_bos.txt
+Parsing C:\Games\For the Glory\db\events\major_bra.txt
+Parsing C:\Games\For the Glory\db\events\major_bri.txt
+Parsing C:\Games\For the Glory\db\events\major_bru.txt
+Parsing C:\Games\For the Glory\db\events\major_bur.txt
+Parsing C:\Games\For the Glory\db\events\major_byz.txt
+Parsing C:\Games\For the Glory\db\events\major_cas.txt
+Parsing C:\Games\For the Glory\db\events\major_chg.txt
+Parsing C:\Games\For the Glory\db\events\major_chi.txt
+Parsing C:\Games\For the Glory\db\events\major_cyp.txt
+Parsing C:\Games\For the Glory\db\events\major_dai.txt
+Parsing C:\Games\For the Glory\db\events\major_dan.txt
+Parsing C:\Games\For the Glory\db\events\major_dlh.txt
+Parsing C:\Games\For the Glory\db\events\major_egy.txt
+Parsing C:\Games\For the Glory\db\events\major_eir.txt
+Parsing C:\Games\For the Glory\db\events\major_eng.txt
+Parsing C:\Games\For the Glory\db\events\major_fez.txt
+Parsing C:\Games\For the Glory\db\events\major_fla.txt
+Parsing C:\Games\For the Glory\db\events\major_flo.txt
+Parsing C:\Games\For the Glory\db\events\major_fra.txt
+Parsing C:\Games\For the Glory\db\events\major_fri.txt
+Parsing C:\Games\For the Glory\db\events\major_gel.txt
+Parsing C:\Games\For the Glory\db\events\major_gen.txt
+Parsing C:\Games\For the Glory\db\events\major_gre.txt
+Parsing C:\Games\For the Glory\db\events\major_hab.txt
+Parsing C:\Games\For the Glory\db\events\major_han.txt
+Parsing C:\Games\For the Glory\db\events\major_hau.txt
+Parsing C:\Games\For the Glory\db\events\major_hes.txt
+Parsing C:\Games\For the Glory\db\events\major_hll.txt
+Parsing C:\Games\For the Glory\db\events\major_hol.txt
+Parsing C:\Games\For the Glory\db\events\major_hun.txt
+Parsing C:\Games\For the Glory\db\events\major_inc.txt
+Parsing C:\Games\For the Glory\db\events\major_kab.txt
+Parsing C:\Games\For the Glory\db\events\major_khm.txt
+Parsing C:\Games\For the Glory\db\events\major_kle.txt
+Parsing C:\Games\For the Glory\db\events\major_kni.txt
+Parsing C:\Games\For the Glory\db\events\major_kol.txt
+Parsing C:\Games\For the Glory\db\events\major_kor.txt
+Parsing C:\Games\For the Glory\db\events\major_ksh.txt
+Parsing C:\Games\For the Glory\db\events\major_kur.txt
+Parsing C:\Games\For the Glory\db\events\major_kzk.txt
+Parsing C:\Games\For the Glory\db\events\major_lat.txt
+Parsing C:\Games\For the Glory\db\events\major_lit.txt
+Parsing C:\Games\For the Glory\db\events\major_lor.txt
+Parsing C:\Games\For the Glory\db\events\major_lux.txt
+Parsing C:\Games\For the Glory\db\events\major_mam.txt
+Parsing C:\Games\For the Glory\db\events\major_mch.txt
+Parsing C:\Games\For the Glory\db\events\major_mlo.txt
+Parsing C:\Games\For the Glory\db\events\major_mog.txt
+Parsing C:\Games\For the Glory\db\events\major_mor.txt
+Parsing C:\Games\For the Glory\db\events\major_mos.txt
+Parsing C:\Games\For the Glory\db\events\major_nap.txt
+Parsing C:\Games\For the Glory\db\events\major_nav.txt
+Parsing C:\Games\For the Glory\db\events\major_nip.txt
+Parsing C:\Games\For the Glory\db\events\major_nor.txt
+Parsing C:\Games\For the Glory\db\events\major_nvg.txt
+Parsing C:\Games\For the Glory\db\events\major_pap.txt
+Parsing C:\Games\For the Glory\db\events\major_per.txt
+Parsing C:\Games\For the Glory\db\events\major_pfa.txt
+Parsing C:\Games\For the Glory\db\events\major_pol.txt
+Parsing C:\Games\For the Glory\db\events\major_pom.txt
+Parsing C:\Games\For the Glory\db\events\major_por.txt
+Parsing C:\Games\For the Glory\db\events\major_pro.txt
+Parsing C:\Games\For the Glory\db\events\major_pru.txt
+Parsing C:\Games\For the Glory\db\events\major_rus.txt
+Parsing C:\Games\For the Glory\db\events\major_sac.txt
+Parsing C:\Games\For the Glory\db\events\major_sav.txt
+Parsing C:\Games\For the Glory\db\events\major_sco.txt
+Parsing C:\Games\For the Glory\db\events\major_ser.txt
+Parsing C:\Games\For the Glory\db\events\major_shl.txt
+Parsing C:\Games\For the Glory\db\events\major_slz.txt
+Parsing C:\Games\For the Glory\db\events\major_spa.txt
+Parsing C:\Games\For the Glory\db\events\major_ste.txt
+Parsing C:\Games\For the Glory\db\events\major_swe.txt
+Parsing C:\Games\For the Glory\db\events\major_tib.txt
+Parsing C:\Games\For the Glory\db\events\major_tim.txt
+Parsing C:\Games\For the Glory\db\events\major_tle.txt
+Parsing C:\Games\For the Glory\db\events\major_tos.txt
+Parsing C:\Games\For the Glory\db\events\major_tra.txt
+Parsing C:\Games\For the Glory\db\events\major_tun.txt
+Parsing C:\Games\For the Glory\db\events\major_tur.txt
+Parsing C:\Games\For the Glory\db\events\major_usa.txt
+Parsing C:\Games\For the Glory\db\events\major_utr.txt
+Parsing C:\Games\For the Glory\db\events\major_uzb.txt
+Parsing C:\Games\For the Glory\db\events\major_ven.txt
+Parsing C:\Games\For the Glory\db\events\major_vie.txt
+Parsing C:\Games\For the Glory\db\events\major_vij.txt
+Parsing C:\Games\For the Glory\db\events\major_wal.txt
+Parsing C:\Games\For the Glory\db\events\major_wrz.txt
+Parsing C:\Games\For the Glory\db\events\major_zee.txt
+Parsing C:\Games\For the Glory\db\events\flavor_dan.txt
+Parsing C:\Games\For the Glory\db\events\flavor_eng.txt
+Parsing C:\Games\For the Glory\db\events\flavor_flo.txt
+Parsing C:\Games\For the Glory\db\events\flavor_fra.txt
+Parsing C:\Games\For the Glory\db\events\flavor_hab.txt
+Parsing C:\Games\For the Glory\db\events\flavor_han.txt
+Parsing C:\Games\For the Glory\db\events\flavor_hol.txt
+Parsing C:\Games\For the Glory\db\events\flavor_hun.txt
+Parsing C:\Games\For the Glory\db\events\flavor_kor.txt
+Parsing C:\Games\For the Glory\db\events\flavor_mlo.txt
+Parsing C:\Games\For the Glory\db\events\flavor_nip.txt
+Parsing C:\Games\For the Glory\db\events\flavor_pol.txt
+Parsing C:\Games\For the Glory\db\events\flavor_pru.txt
+Parsing C:\Games\For the Glory\db\events\flavor_rus.txt
+Parsing C:\Games\For the Glory\db\events\flavor_sac.txt
+Parsing C:\Games\For the Glory\db\events\flavor_spa.txt
+Parsing C:\Games\For the Glory\db\events\flavor_swe.txt
+Parsing C:\Games\For the Glory\db\events\randomevents.txt
+Parsing C:\Games\For the Glory\db\events\randomreligiousevents.txt
+Parsing C:\Games\For the Glory\db\events\extragc.txt
+Parsing C:\Games\For the Glory\db\events\hugeevents.txt
+Parsing C:\Games\For the Glory\db\events\religiousevents.txt
+Parsing C:\Games\For the Glory\db\events\provincespec.txt
+Parsing C:\Games\For the Glory\ai\ai_events.txt
+Parsing C:\Games\For the Glory\db\events\new_events.txt
+Parsing C:\Games\For the Glory\db\events\TestEvents.txt
+Loading events from C:\Games\For the Glory\Scenarios\Inc\Reformation_Events.inc
+Loading C:\Games\For the Glory\Scenarios\Inc\Reformation_Events.inc.
+Loading took 403800 ns.
+
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Main.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Protestant_Britain.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Protestant_Germany.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Protestant_Lowlands.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Protestant_Other.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Protestant_Scandinavia.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Reformed_Britain.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Reformed_France.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Reformed_Germany.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Reformed_Lowlands.eue
+Parsing C:\Games\For the Glory\db\events\reformation\Reformed_Other.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Protestant_Britain.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Protestant_Lowlands.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Protestant_Germany.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Protestant_Other.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Protestant_Scandinavia.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Reformed_Britain.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Reformed_France.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Reformed_Germany.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Reformed_Lowlands.eue
+Parsing C:\Games\For the Glory\db\events\reformation\RNGC_Reformed_Other.eue
+Creating HTML...
+Protestant_Britain.eue
+Protestant_Germany.eue
+Protestant_Lowlands.eue
+Protestant_Other.eue
+Warning: Event 717038800 has no date, is not random, and is not triggered by another event
+Warning: Event 717036500 has no date, is not random, and is not triggered by another event
+Warning: Event 717036300 has no date, is not random, and is not triggered by another event
+Warning: Event 717036200 has no date, is not random, and is not triggered by another event
+Warning: Event 717161200 has no date, is not random, and is not triggered by another event
+Protestant_Scandinavia.eue
+RNGC_Main.eue
+RNGC_Protestant_Britain.eue
+RNGC_Protestant_Germany.eue
+RNGC_Protestant_Lowlands.eue
+RNGC_Protestant_Other.eue
+RNGC_Protestant_Scandinavia.eue
+RNGC_Reformed_Britain.eue
+RNGC_Reformed_France.eue
+RNGC_Reformed_Germany.eue
+RNGC_Reformed_Lowlands.eue
+RNGC_Reformed_Other.eue
+Reformed_Britain.eue
+Reformed_France.eue
+Warning: Event 717037910 has no date, is not random, and is not triggered by another event
+Warning: Event 717040910 has no date, is not random, and is not triggered by another event
+Warning: Event 717038210 has no date, is not random, and is not triggered by another event
+Warning: Event 717037610 has no date, is not random, and is not triggered by another event
+Warning: Event 717038610 has no date, is not random, and is not triggered by another event
+Warning: Event 717038310 has no date, is not random, and is not triggered by another event
+Warning: Event 717042610 has no date, is not random, and is not triggered by another event
+Reformed_Germany.eue
+Warning: Event 717034810 has no date, is not random, and is not triggered by another event
+Warning: Event 717035110 has no date, is not random, and is not triggered by another event
+Warning: Event 717031210 has no date, is not random, and is not triggered by another event
+Warning: Event 717032910 has no date, is not random, and is not triggered by another event
+Warning: Event 717030210 has no date, is not random, and is not triggered by another event
+Warning: Event 717030610 has no date, is not random, and is not triggered by another event
+Warning: Event 717031310 has no date, is not random, and is not triggered by another event
+Warning: Event 717031110 has no date, is not random, and is not triggered by another event
+Warning: Event 717030510 has no date, is not random, and is not triggered by another event
+Warning: Event 717035210 has no date, is not random, and is not triggered by another event
+Warning: Event 717032710 has no date, is not random, and is not triggered by another event
+Warning: Event 717033110 has no date, is not random, and is not triggered by another event
+Warning: Event 717035010 has no date, is not random, and is not triggered by another event
+Warning: Event 717031410 has no date, is not random, and is not triggered by another event
+Warning: Event 717036910 has no date, is not random, and is not triggered by another event
+Warning: Event 717037110 has no date, is not random, and is not triggered by another event
+Warning: Event 717030410 has no date, is not random, and is not triggered by another event
+Warning: Event 717037210 has no date, is not random, and is not triggered by another event
+Reformed_Lowlands.eue
+Reformed_Other.eue
+Warning: Event 717032810 has no date, is not random, and is not triggered by another event
+Warning: Event 717036410 has no date, is not random, and is not triggered by another event
+Warning: Event 717036610 has no date, is not random, and is not triggered by another event
+Warning: Event 717036510 has no date, is not random, and is not triggered by another event
+Warning: Event 717030110 has no date, is not random, and is not triggered by another event
+Warning: Event 717027610 has no date, is not random, and is not triggered by another event
+Warning: Event 717036810 has no date, is not random, and is not triggered by another event
+Warning: Event 717036310 has no date, is not random, and is not triggered by another event
+Warning: Event 717036710 has no date, is not random, and is not triggered by another event
+Warning: Event 717028310 has no date, is not random, and is not triggered by another event
+Warning: Event 717028210 has no date, is not random, and is not triggered by another event
+Warning: Event 717028910 has no date, is not random, and is not triggered by another event
+Warning: Event 717031810 has no date, is not random, and is not triggered by another event
+Warning: Event 717031510 has no date, is not random, and is not triggered by another event
+Warning: Event 717030310 has no date, is not random, and is not triggered by another event
+Warning: Event 717029010 has no date, is not random, and is not triggered by another event
+Warning: Event 717036210 has no date, is not random, and is not triggered by another event
+Warning: Event 717035510 has no date, is not random, and is not triggered by another event
+Warning: Event 717033010 has no date, is not random, and is not triggered by another event
+Warning: Event 717032210 has no date, is not random, and is not triggered by another event
+TestEvents.txt
+ai_events.txt
+Cannot find event 164190
+Cannot find event 164191
+Cannot find event 164180
+Cannot find event 325013
+extragc.txt
+flavor_dan.txt
+flavor_eng.txt
+flavor_flo.txt
+flavor_fra.txt
+flavor_hab.txt
+flavor_han.txt
+flavor_hol.txt
+flavor_hun.txt
+flavor_kor.txt
+flavor_mlo.txt
+flavor_nip.txt
+flavor_pol.txt
+flavor_pru.txt
+flavor_rus.txt
+flavor_sac.txt
+flavor_spa.txt
+flavor_swe.txt
+hugeevents.txt
+major_akk.txt
+major_alb.txt
+major_ald.txt
+major_ann.txt
+major_arg.txt
+major_ayu.txt
+major_bad.txt
+major_bay.txt
+major_boh.txt
+major_bol.txt
+major_bos.txt
+major_bra.txt
+major_bri.txt
+major_bru.txt
+major_bur.txt
+major_byz.txt
+major_cas.txt
+major_chg.txt
+major_chi.txt
+major_cyp.txt
+major_dai.txt
+major_dan.txt
+major_dlh.txt
+major_egy.txt
+major_eir.txt
+major_eng.txt
+Warning: Event 3037 has no date, is not random, and is not triggered by another event
+major_fez.txt
+major_fla.txt
+major_flo.txt
+major_fra.txt
+3794: Warning: Sleeping leader 10209, who might already be dormant
+3794: Warning: Sleeping leader 10210, who might already be dormant
+3785: Warning: Sleeping leader 10209, who might already be dormant
+3786: Warning: Sleeping leader 10209, who might already be dormant
+3787: Warning: Sleeping leader 10209, who might already be dormant
+3788: Warning: Sleeping leader 10209, who might already be dormant
+3789: Warning: Sleeping leader 10209, who might already be dormant
+major_fri.txt
+major_gel.txt
+major_gen.txt
+major_gre.txt
+major_hab.txt
+major_han.txt
+major_hau.txt
+major_hes.txt
+major_hll.txt
+major_hol.txt
+major_hun.txt
+major_inc.txt
+major_kab.txt
+major_khm.txt
+major_kle.txt
+major_kni.txt
+major_kol.txt
+major_kor.txt
+major_ksh.txt
+major_kur.txt
+major_kzk.txt
+major_lat.txt
+major_lit.txt
+major_lor.txt
+major_lux.txt
+major_mam.txt
+major_mch.txt
+major_mlo.txt
+major_mog.txt
+major_mor.txt
+major_mos.txt
+major_nap.txt
+major_nav.txt
+major_nip.txt
+major_nor.txt
+major_nvg.txt
+major_pap.txt
+major_per.txt
+major_pfa.txt
+major_pol.txt
+major_pom.txt
+major_por.txt
+major_pro.txt
+major_pru.txt
+major_rus.txt
+major_sac.txt
+major_sav.txt
+major_sco.txt
+3079: Warning: Sleeping leader 9278, who might already be dormant
+major_ser.txt
+major_shl.txt
+major_slz.txt
+major_spa.txt
+major_ste.txt
+major_swe.txt
+major_tib.txt
+major_tim.txt
+major_tle.txt
+major_tos.txt
+major_tra.txt
+major_tun.txt
+major_tur.txt
+major_usa.txt
+major_utr.txt
+major_uzb.txt
+major_ven.txt
+major_vie.txt
+major_vij.txt
+major_wal.txt
+major_wrz.txt
+major_zee.txt
+new_events.txt
+provincespec.txt
+randomevents.txt
+randomreligiousevents.txt
+religiousevents.txt
+eventdoc.htm
+all.htm
+allbyyear.htm
+Finished creating HTML
+
+Copying extra files to destination...
+coin.png
+Couldn't copy files. Please do so manually.
+
+Finished.
+
+If you have a CSS file you would like to use, it should now be placed in the
+CSS directory (by default, just the output directory), if it is not already present.
+It should be called "eventdoc.css".
