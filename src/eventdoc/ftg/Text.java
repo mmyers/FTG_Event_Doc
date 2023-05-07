@@ -45,6 +45,7 @@ final class Text {
         loadTextFile(Main.resolver.resolveFilename(folder + "technologies.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "terrains.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "addendum.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "1.3.csv"));
 
 //        for (File f : Main.resolver.listFiles(textDir + "\\" + language)) {
 //            if (!f.getName().endsWith(".csv")) {

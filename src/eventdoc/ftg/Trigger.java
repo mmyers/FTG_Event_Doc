@@ -29,6 +29,10 @@ public abstract class Trigger {
     }
     
     abstract void generateHTML(BufferedWriter out) throws IOException;
+    
+    String getListStartString() {
+        return "<li>";
+    }
 }
 
 
@@ -248,7 +252,7 @@ abstract class CombinedTrigger extends Trigger {
         out.write("<ul class=\"trigger\">");
         out.newLine();
         for (Trigger t : triggers) {
-            out.write("<li>");
+            out.write(t.getListStartString());
             out.newLine();
             t.generateHTML(out);
             out.newLine();
@@ -259,6 +263,10 @@ abstract class CombinedTrigger extends Trigger {
         out.newLine();
     }
     
+    @Override
+    String getListStartString() {
+        return "<li class=\"combo\">";
+    }
 }
 
 
@@ -318,7 +326,10 @@ class NotTrigger extends CombinedTrigger {
     void generateHTML(BufferedWriter out) throws IOException {
         if (triggers.size() == 1 && triggers.get(0) instanceof OrTrigger)
             System.out.println(Event.currentId + ": Style issue: NOT-block with only an OR-block subelement (redundant)");
-        out.write("None of the following must occur:");
+        if (triggers.size() == 1)
+            out.write("The following must not occur:");
+        else
+            out.write("None of the following must occur:");
         out.newLine();
         super.generateHTML(out);
     }

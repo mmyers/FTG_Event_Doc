@@ -20,7 +20,8 @@ public class Main {
     public static final String NAME = "MichaelM's event documenter";
     public static final String VERSION = "1.06 FTG";
 
-    private static List<String> eventFiles;
+    private static List<String> eventFiles; // include files
+    private static List<String> extraEventFiles; // files of events that aren't in any include file
     static String moddir;
     private static String language;
     private static String baseDir;
@@ -51,6 +52,7 @@ public class Main {
             baseDir = ".";
         }
         resolver = new FilenameResolver(baseDir);
+        System.out.println("Base directory is " + resolver.getMainDirName());
         resolver.setModFile(false);
         resolver.setModPrefix("Mods/");
         if (moddir != null) {
@@ -95,8 +97,12 @@ public class Main {
         ProvinceDB.init("db/map/provinces.txt");
         GeographyDB.init("db/map/geography.txt");
         
+        System.out.println("Loading events using a base of " + resolver.getModDirName());
         for (String eventFile : eventFiles) {
             EventDB.loadEvents(resolver.resolveFilename(eventFile), resolver.getModDirName());
+        }
+        for (String extra : extraEventFiles) {
+            EventDB.loadEventsFromFile(extra, resolver.getModDirName());
         }
 
         if (title != null) {
@@ -144,17 +150,16 @@ public class Main {
     // Copies src file to dst file.
     // If the dst file does not exist, it is created
     private static void copy(File src, File dst) throws IOException {
-        InputStream in = new FileInputStream(src);
-        OutputStream out = new FileOutputStream(dst);
-
-        // Transfer bytes from in to out
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-            out.write(buf, 0, len);
+        try (InputStream in = new FileInputStream(src)) {
+            try (OutputStream out = new FileOutputStream(dst)) {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
         }
-        in.close();
-        out.close();
     }
 
     private static void handleArgs(String[] args) {
@@ -173,6 +178,16 @@ public class Main {
                     eventFiles = new ArrayList<String>();
                 
                 eventFiles.add(eventFileArg);
+            } else if (equals(arg, "-e", "--extra-events")) {
+                String eventFileArg = stripQuotes(args[++i]);
+                if (eventFileArg.startsWith("/") || eventFileArg.startsWith("\\")) {
+                    eventFileArg = eventFileArg.substring(1);
+                }
+                
+                if (extraEventFiles == null)
+                    extraEventFiles = new ArrayList<String>();
+                
+                extraEventFiles.add(eventFileArg);
             } else if (equals(arg, "-x", "--text")) {
                 language = stripQuotes(args[++i]);
                 if (language.startsWith("/") || language.startsWith("\\")) {
@@ -248,7 +263,11 @@ public class Main {
         System.out.println("        This file should be in the standard events.txt form (event = \"xxx\").");
         System.out.println("        The filename is relative to the base directory, so \"Db\\events.txt\" will");
         System.out.println("        usually work.");
-        System.out.println("        More than one file can be specified.");
+        System.out.println("        Can be used multiple times.");
+        System.out.println("    -e, --extra-events <filename>");
+        System.out.println("        Specifies that events (not a list of event includes) should be read");
+        System.out.println("        from this file.");
+        System.out.println("        Can be used multiple times.");
         System.out.println("    -x, --text <filename>");
         System.out.println("        Specifies the language in the localization folder to use.");
         System.out.println("        The default is English.");

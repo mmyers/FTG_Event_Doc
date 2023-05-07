@@ -27,21 +27,19 @@ import java.util.Map;
  */
 class EventDB {
 
-    private static final Map<String, List<Event>> eventFiles =
-            new HashMap<String,List<Event>>(50);
+    private static final Map<String, List<Event>> eventFiles = new HashMap<>(50);
     
-    private static final Map<Integer, Event> allEvents =
-            new HashMap<Integer, Event>(5000);
+    private static final Map<Integer, Event> allEvents = new HashMap<>(5000);
 
-    private static final Map<Integer, String> eventsInFiles =
-            new HashMap<Integer, String>(5000); // not strictly necessary; just for speed
+    private static final Map<Integer, String> eventsInFiles = new HashMap<>(5000);
     
-    private static final Map<Integer, String> names =
-            new HashMap<Integer, String>(5000);
-    private static final Map<Integer, String> descs =
-            new HashMap<Integer, String>(5000);
+    private static final Map<Integer, String> names = new HashMap<>(5000);
+    private static final Map<Integer, String> descs = new HashMap<>(5000);
     
-    private static List<Event> currentFile;
+    private static final String INDEX_NAME = "eventdoc.htm";
+    private static final String ALL_EVENTS_INDEX_NAME = "all_events.htm";
+    private static final String ALL_EVENTS_BY_YEAR_INDEX_NAME = "all_events_by_year.htm";
+    private static final String ALL_EVENTS_BY_COUNTRY_INDEX_NAME = "all_events_by_country.htm";
 
     private EventDB() {
     }
@@ -65,12 +63,17 @@ class EventDB {
         
         initTriggers();
     }
+    
+    static void loadEventsFromFile(String eventFile, String rootDir) {
+        parseEvents(rootDir + File.separator + eventFile);
+        initTriggers();
+    }
 
     private static void parseEvents(String eventFile) {
         File file = new File(eventFile);
         System.out.println("Parsing " + file.getAbsolutePath());
         
-        currentFile = new ArrayList<Event>(20);
+        List <Event> currentFile = new ArrayList<>(20);
         eventFiles.put(file.getName(), currentFile);
         
         List<Event> events = new EventParser(file).parse();
@@ -194,7 +197,7 @@ class EventDB {
 
                 output.write("<div class=\"index_footer\">");
                 output.newLine();
-                output.write("<p><a href=\"../eventdoc.htm\">Back to Index</a></p>");
+                output.write("<p><a href=\"../" + INDEX_NAME + "\">Back to Index</a></p>");
                 output.newLine();
                 output.write("</div> <!-- End of index footer -->");
                 output.newLine();
@@ -225,7 +228,7 @@ class EventDB {
                 output.newLine();
                 output.write("<div class=\"index_footer\">");
                 output.newLine();
-                output.write("<p><a href=\"../eventdoc.htm\">Back to index</a><br />");
+                output.write("<p><a href=\"../" + INDEX_NAME + "\">Back to index</a><br />");
                 output.newLine();
                 output.write("<a href=\"#top\">Back to top</a></p>");
                 output.newLine();
@@ -257,13 +260,15 @@ class EventDB {
             }
         }
 
-        System.out.println("eventdoc.htm");
+        System.out.println(INDEX_NAME);
         writeIndex(directory, files);
 
-        System.out.println("all.htm");
+        System.out.println(ALL_EVENTS_INDEX_NAME);
         writeLookupPage(directory);
-        System.out.println("allbyyear.htm");
+        System.out.println(ALL_EVENTS_BY_YEAR_INDEX_NAME);
         writeYearlyLookupPage(directory);
+        System.out.println(ALL_EVENTS_BY_COUNTRY_INDEX_NAME);
+        writeCountryLookupPage(directory);
 
         System.out.println("Finished creating HTML");
     }
@@ -438,6 +443,14 @@ class EventDB {
         output.newLine();
         
         // TODO: metas
+        output.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">");
+        output.newLine();
+        output.write("<meta http-equiv=\"Content-Language\" content=\"en-us\">");
+        output.newLine();
+        output.write("<meta http-equiv=\"Keywords\" content=\"For the Glory, For the Glory game\">");
+        output.newLine();
+        output.write("<meta http-equiv=\"Description\" content=\"For the Glory" + (Main.moddir == null ? "" : " " + Main.moddir + " mod") + " game event documentation\">");
+        output.newLine();
 
         output.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
         if (!isIndex)
@@ -461,7 +474,7 @@ class EventDB {
     }
     
     private static void writeIndex(String directory, List<String> files) {
-        File index = new File(directory + "eventdoc.htm");
+        File index = new File(directory + INDEX_NAME);
         BufferedWriter output = null;
         try {
             output = new BufferedWriter(new FileWriter(index));
@@ -487,10 +500,13 @@ class EventDB {
 
             output.write("<div class=\"index_footer\"><p>");
             output.newLine();
-            output.write("<a href=\"all.htm\" class=\"a_und\">List of all events by ID</a>");
+            output.write("<a href=\"" + ALL_EVENTS_INDEX_NAME + "\" class=\"a_und\">List of all events by ID</a>");
             output.write("<br />");
             output.newLine();
-            output.write("<a href=\"allbyyear.htm\" class=\"a_und\">List of all events by year</a>");
+            output.write("<a href=\"" + ALL_EVENTS_BY_YEAR_INDEX_NAME + "\" class=\"a_und\">List of all events by year</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<a href=\"" + ALL_EVENTS_BY_COUNTRY_INDEX_NAME + "\" class=\"a_und\">List of all events by country</a>");
             output.newLine();
 
             output.write("<br /><br />");
@@ -521,7 +537,7 @@ class EventDB {
     }
     
     private static void writeLookupPage(String directory) {
-        File lookup = new File(directory + "all.htm");
+        File lookup = new File(directory + ALL_EVENTS_INDEX_NAME);
         BufferedWriter output = null;
         try {
             output = new BufferedWriter(new FileWriter(lookup));
@@ -541,7 +557,7 @@ class EventDB {
 
             output.write("<div class=\"index_footer\">");
             output.newLine();
-            output.write("<p><a href=\"eventdoc.htm\">Back to Index</a></p>");
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
             output.newLine();
             output.write("</div>");
             output.newLine();
@@ -567,7 +583,7 @@ class EventDB {
             output.newLine();
             output.write("<p>" + allIds.size() + " total events.</p>");
             output.newLine();
-            output.write("<p><a href=\"eventdoc.htm\">Back to Index</a></p>");
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
             output.newLine();
             output.write("</div>");
             output.newLine();
@@ -593,7 +609,7 @@ class EventDB {
     }
 
     private static void writeYearlyLookupPage(String directory) {
-        File lookup = new File(directory + "allbyyear.htm");
+        File lookup = new File(directory + ALL_EVENTS_BY_YEAR_INDEX_NAME);
         BufferedWriter output = null;
         try {
             output = new BufferedWriter(new FileWriter(lookup));
@@ -613,7 +629,7 @@ class EventDB {
 
             output.write("<div class=\"index_footer\">");
             output.newLine();
-            output.write("<p><a href=\"eventdoc.htm\">Back to Index</a></p>");
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
             output.newLine();
             output.write("</div>");
             output.newLine();
@@ -670,7 +686,137 @@ class EventDB {
             output.newLine();
             output.write("<p>" + events.size() + " total events.</p>");
             output.newLine();
-            output.write("<p><a href=\"eventdoc.htm\">Back to Index</a></p>");
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
+            output.newLine();
+            output.write("</div>");
+            output.newLine();
+            output.write("</div> <!-- End of main content -->");
+            output.newLine();
+            output.newLine();
+            writePageEnd(output);
+            output.write("</body>");
+            output.newLine();
+            output.write("</html>");
+            output.newLine();
+        } catch (IOException ex) {
+            System.out.println("Error writing event index file");
+        } finally {
+            try {
+                if (output != null) {
+                    output.close();
+                }
+            } catch (IOException ex) {
+                System.out.println("Error closing event index file");
+            }
+        }
+    }
+    
+    private static void writeCountryLookupPage(String directory) {
+        File lookup = new File(directory + ALL_EVENTS_BY_COUNTRY_INDEX_NAME);
+        BufferedWriter output = null;
+        try {
+            output = new BufferedWriter(new FileWriter(lookup));
+            writeHeader("All Events", output, true);
+
+            output.write("<body>");
+            output.newLine();
+
+            writePageStart(output);
+            output.newLine();
+
+            output.write("<div class=\"index\">");
+            output.newLine();
+
+            output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">All Events</a></h2></div>");
+            output.newLine();
+
+            output.write("<div class=\"index_footer\">");
+            output.newLine();
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
+            output.newLine();
+            output.write("</div>");
+            output.newLine();
+
+            output.write("<div class=\"index_body\">");
+            output.newLine();
+            output.write("<h2>Country Events</h2>");
+            output.newLine();
+
+            List<Event> events = new ArrayList<Event>(allEvents.values());
+            Collections.sort(events, Event.SORT_BY_COUNTRY);
+            String lastTag = null;
+            int lastProv = -1;
+            boolean printedAllCountries = false;
+            for (Event evt : events) {
+                if ("AI_EVENT".equals(evt.getName()))
+                    continue;
+                
+                // print some header stuff if this is the first event for this country or province
+                if (evt.getTag() != null && !evt.getTag().equals(lastTag)) {
+                    if (evt.getTag() != null)
+                        output.write("<h3>" + Text.getText(evt.getTag()) + "</h3>\n");
+                }
+                lastTag = evt.getTag();
+                
+                if (lastProv == -1 && evt.getProvince() != -1)
+                    output.write("<h2>Province Events</h2>\n");
+                
+                if (lastProv != evt.getProvince()) {
+                    if (evt.getProvince() != -1)
+                        output.write("<h3>" + Text.getText(ProvinceDB.getName(evt.getProvince())) + "</h3>\n");
+                }
+                lastProv = evt.getProvince();
+                
+                if (evt.getTag() == null && evt.getProvince() == -1) {
+                    if (!printedAllCountries)
+                        output.write("<h2>All Countries</h2>\n");
+                    printedAllCountries = true;
+                }
+                // end of header stuff
+
+                if (evt.isRandom()) {
+                    output.write("Random: ");
+                } else if (evt.getStartDate() != null) {
+                    output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
+                    if (evt.getEndDate() != null) {
+                        output.write("-" + evt.getEndDate().get(GregorianCalendar.YEAR));
+                    }
+                    output.write(": ");
+                } else if (triggersOf.get(evt.getId()) != null) {
+                    output.write("Triggered (");
+                    List<Integer> triggeringEvents = new ArrayList<Integer>(triggersOf.get(evt.getId()).keySet());
+                    for (int i = 0; i < triggeringEvents.size(); i++) {
+                        Event e = allEvents.get(triggeringEvents.get(i));
+                        if (e.getStartDate() != null) {
+                            output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
+                            if (e.getEndDate() != null) {
+                                output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
+                            }
+                        } else if (e.isRandom()) {
+                            output.write("random event");
+                        } else if (triggersOf.get(e.getId()) != null) {
+                            output.write("triggered event");
+                        } else {
+                            output.write("unknown event");
+                        }
+                        if (i < triggeringEvents.size() - 1)
+                            output.write(", ");
+                    }
+                    output.write("): ");
+                } else {
+                    output.write("<span class=\"error\">Unknown: </span>");
+                }
+                output.write(makeLink(evt.getId(), true, docFolder, true));
+                output.write("<br />");
+                output.newLine();
+            }
+            output.write("</div> <!-- End of list -->");
+            output.newLine();
+            output.write("<div class=\"index_footer\">");
+            output.newLine();
+            output.write("<p>" + events.size() + " total events.</p>");
+            output.newLine();
+            output.write("<p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
             output.newLine();
             output.write("</div>");
             output.newLine();

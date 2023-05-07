@@ -358,13 +358,52 @@ public class Event {
                     if (EventDB.triggersOf(o2.id) != null) {
                         int id1 = EventDB.triggersOf(o1.id).keySet().iterator().next();
                         int id2 = EventDB.triggersOf(o2.id).keySet().iterator().next();
-                        ret = compare(EventDB.getEvent(id1), EventDB.getEvent(id2));
+                        if (id1 != id2 && !(o1.id == id1 && o2.id == id2) && !(o1.id == id2 && o2.id == id1)) {
+                            ret = compare(EventDB.getEvent(id1), EventDB.getEvent(id2));
+                        }
                     }
                 }
             }
             if (ret == 0)
                 ret = Text.getText(o1.getName()).compareTo(Text.getText(o2.getName()));
             return ret;
+        }
+    };
+    
+    public static Comparator<Event> SORT_BY_COUNTRY = new Comparator<Event>() {
+        @Override
+        public int compare(Event o1, Event o2) {
+            if (o1.tag != null && o2.tag == null)
+                return -1;
+            if (o1.tag == null && o2.tag != null)
+                return 1;
+            
+            if (o1.tag != null && o2.tag != null) {
+                int ret = Text.getText(o1.tag).compareTo(Text.getText(o2.tag));
+                if (ret != 0)
+                    return ret;
+                return o1.id - o2.id;
+            }
+            
+            // compare by province if possible
+            if (o1.province != -1 && o2.province == -1)
+                return -1;
+            if (o1.province == -1 && o2.province != -1)
+                return 1;
+            
+            if (o1.province != -1 && o2.province != -1) {
+                int ret = Text.getText(ProvinceDB.getName(o1.province)).compareTo(Text.getText(ProvinceDB.getName(o2.province)));
+                if (ret != 0)
+                    return ret;
+                return o1.id - o2.id;
+            }
+            
+            if (o1.random && !o2.random)
+                return 1;
+            if (!o1.random && o2.random)
+                return -1;
+            
+            return o1.id - o2.id;
         }
     };
 }

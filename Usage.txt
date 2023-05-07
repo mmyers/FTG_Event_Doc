@@ -5,16 +5,18 @@ where <args> consists of one or more of the following:
         This file should be in the standard events.txt form (event = "xxx").
         The filename is relative to the base directory, so "Db\events.txt" will
         usually work.
-        More than one file can be specified.
+        Can be used multiple times.
+    -e, --extra-events <filename>
+        Specifies that events (not a list of event includes) should be read
+        from this file.
+        Can be used multiple times.
     -x, --text <filename>
-        Specifies that event text should be read from the specified file. This
-        should be a standard text.csv file, and the first column after the key
-        will be used as the value.
-        The default value is /config/text.csv.
+        Specifies the language in the localization folder to use.
+        The default is English.
     -b, --basedir <directory>
-        Specifies that the given directory is the base directory of the EU2
+        Specifies that the given directory is the base directory of the FTG
         installation.
-        If unspecified, the program will assume it is in the EU2 directory.
+        If unspecified, the program will assume it is in the FTG directory.
     -m, --moddir <name>
         Specifies that the given name is the name of a mod in the base directory
         and should be used when possible.
@@ -26,7 +28,7 @@ where <args> consists of one or more of the following:
     -t, --title <format string>
         Specifies to use the given title for the generated files. If the string
         contains %s, this is where the page name is placed.
-        The default is "%s -- EU2 Event Documentation".
+        The default is "%s -- FTG Event Documentation".
         Note that the % sign is reserved in batch files; %%s is necessary instead.
     --custom-header
         Specifies that custom HTML from the file 'header.htm' will be inserted into
