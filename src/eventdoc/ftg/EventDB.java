@@ -343,6 +343,10 @@ class EventDB {
     }
     
     static String formatCountry(final String tag) {
+        if (tag.equals("-6"))
+            return "<span class=\"country\">The Holy Roman Emperor</span>";
+        if (tag.equals("-2"))
+            return "<span class=\"country\">our overlord</span>";
         return "<span class=\"country\" title=\"" + tag + "\">" + Text.getText(tag) + "</span>";
     }
     
