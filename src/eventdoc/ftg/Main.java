@@ -20,13 +20,14 @@ public class Main {
     public static final String NAME = "MichaelM's event documenter";
     public static final String VERSION = "1.06 FTG";
 
-    static String moddir;
     private static List<String> eventFiles = new ArrayList<>(); // include files
     private static List<String> extraEventFiles = new ArrayList<>(); // files of events that aren't in any include file
+    private static String moddir;
     private static String language;
     private static String baseDir;
     private static String outputDir;
     private static String title;
+    private static String modName;
     
     private static boolean customHeader = false;
     private static boolean customTop = false;
@@ -144,6 +145,24 @@ public class Main {
         System.out.println("CSS directory (by default, just the output directory), if it is not already present.");
         System.out.println("It should be called \"eventdoc.css\".");
     }
+    
+    static String getModName() {
+        if (moddir != null) {
+            if (modName != null)
+                return " " + modName + " mod";
+            return " " + moddir + " mod";
+        }
+        return "";
+    }
+    
+    static String getModNameOrVanilla() {
+        if (moddir != null) {
+            if (modName != null)
+                return modName;
+            return moddir;
+        }
+        return "vanilla";
+    }
 
     // The following method is copied from The Java Developer's Almanac 1.4
     // (http://exampledepot.com/egs/java.io/CopyFile.html)
@@ -211,6 +230,9 @@ public class Main {
             } else if (equals(arg, "-t", "--title")) {
                 title = stripQuotes(args[++i]);
                 System.out.println("Custom title: " + title);
+            } else if (equals(arg, "-n", "--mod-name")) {
+                modName = stripQuotes(args[++i]);
+                System.out.println("Mod name override: " + modName);
             } else if (equals(arg, "--custom-header")) {
                 customHeader = true;
             } else if (equals(arg, "--custom-page-top")) {
@@ -288,6 +310,9 @@ public class Main {
         System.out.println("        contains %s, this is where the page name is placed.");
         System.out.println("        The default is \"%s &ndash; FTG Event Documentation\".");
         System.out.println("        Note that the % sign is reserved in batch files; %%s is necessary instead.");
+        System.out.println("    -n, --mod-name <name>");
+        System.out.println("        When used in conjunction with -m, specifies that the given name is the readable");
+        System.out.println("        name of the mod and should be used in page titles instead of the mod directory.");
         System.out.println("    --custom-header");
         System.out.println("        Specifies that custom HTML from the file 'header.htm' will be inserted into");
         System.out.println("        the end of the header of the generated files.");
