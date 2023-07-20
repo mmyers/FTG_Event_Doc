@@ -20,8 +20,8 @@ public class Main {
     public static final String NAME = "MichaelM's event documenter";
     public static final String VERSION = "1.06 FTG";
 
-    private static List<String> eventFiles = new ArrayList<>(); // include files
-    private static List<String> extraEventFiles = new ArrayList<>(); // files of events that aren't in any include file
+    private static final List<String> eventFiles = new ArrayList<>(); // include files
+    private static final List<String> extraEventFiles = new ArrayList<>(); // files of events that aren't in any include file
     private static String moddir;
     private static String language;
     private static String baseDir;
@@ -193,18 +193,12 @@ public class Main {
                     eventFileArg = eventFileArg.substring(1);
                 }
                 
-                if (eventFiles == null)
-                    eventFiles = new ArrayList<String>();
-                
                 eventFiles.add(eventFileArg);
             } else if (equals(arg, "-e", "--extra-events")) {
                 String eventFileArg = stripQuotes(args[++i]);
                 if (eventFileArg.startsWith("/") || eventFileArg.startsWith("\\")) {
                     eventFileArg = eventFileArg.substring(1);
                 }
-                
-                if (extraEventFiles == null)
-                    extraEventFiles = new ArrayList<String>();
                 
                 extraEventFiles.add(eventFileArg);
             } else if (equals(arg, "-x", "--text")) {
@@ -372,11 +366,9 @@ public class Main {
     private static String readFile(String filename) {
         final File file = new File(filename);
         final char[] data = new char[(int)file.length()];
-        try {
-            final FileReader reader = new FileReader(file);
+        try (final FileReader reader = new FileReader(file)) {
             if (reader.read(data) != data.length)
                 System.err.println("???");
-            reader.close();
             return String.valueOf(data);
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();

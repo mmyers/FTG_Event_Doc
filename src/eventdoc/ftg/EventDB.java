@@ -115,17 +115,17 @@ class EventDB {
     static void generateHTML(String directory) {
         System.out.println("Creating HTML...");
 
-        File folder = new File(directory + docFolder);
+        File folder = new File(directory + DOC_FOLDER);
         if (!folder.exists())
             folder.mkdir();
 
-        List<String> files = new ArrayList<String>(eventFiles.keySet());
+        List<String> files = new ArrayList<>(eventFiles.keySet());
         Collections.sort(files);
 
         for (String file : files) {
             System.out.println(file);
             List<Event> events = eventFiles.get(file);
-            File page = new File(directory + docFolder + file + ".htm");
+            File page = new File(directory + DOC_FOLDER + file + ".htm");
             try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
                 writeHeader(file, output, false, false);
                 output.write("<body onload=\"toggle('eventlist')\">");
@@ -154,7 +154,7 @@ class EventDB {
                         output.write("Random: ");
                     } else if (triggersOf.get(evt.getId()) != null) {
                     output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<Integer>(triggersOf.get(evt.getId()).keySet());
+                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
                     for (int i = 0; i < triggeringEvents.size(); i++) {
                         Event e = allEvents.get(triggeringEvents.get(i));
                         if (e.getStartDate() != null) {
@@ -282,17 +282,16 @@ class EventDB {
      * where (filename) is the name of the file that the event occurs in and
      * (eventID) is the given ID.
      * @param eventID the ID of the event to create a link to.
-     * @param underlined whether the link should be made with class
-     * "a_und".
+     * @param underlined whether the link should be made with class "a_und".
+     * @param dir the subdirectory where the filename is located, or null if it is in the same directory.
      * @param includeID whether the link text should include the event ID.
      * @return an HTML string representing a link to the event.
      */
     static final String makeLink(int eventID, boolean underlined, String dir, boolean includeID) {
-        String filename = null;
         String tag = null;
         int province = -1;
 
-        filename = eventsInFiles.get(eventID);
+        String filename = eventsInFiles.get(eventID);
         
         Event event = allEvents.get(eventID);
         
@@ -343,9 +342,8 @@ class EventDB {
     }
     
     // Mapping from event ID 1 to
-    // {mapping from event ID 2 to string holding all actions of #2 that trigger #1}
-    private static final Map<Integer, Map<Integer, String>> triggersOf =
-            new HashMap<Integer, Map<Integer, String>>();
+    // (mapping from event ID 2 to string holding all actions of #2 that trigger #1)
+    private static final Map<Integer, Map<Integer, String>> triggersOf = new HashMap<>();
     
     /**
      * Returns a list of events that trigger the given event.
@@ -356,14 +354,13 @@ class EventDB {
         return triggersOf.get(id);
     }
 
-    private static final Map<Integer, Map<Integer, String>> sleptBy =
-            new HashMap<Integer, Map<Integer, String>>();
+    private static final Map<Integer, Map<Integer, String>> sleptBy = new HashMap<>();
 
     static final Map<Integer, String> whatSleeps(int id) {
         return sleptBy.get(id);
     }
     
-    private static final void initTriggers() {
+    private static void initTriggers() {
         for (Map.Entry<Integer, Event> entry : allEvents.entrySet()) {
             final int eventID = entry.getKey();
             final Map<Character, List<Integer>> eventCanTrigger = entry.getValue().canTrigger();
@@ -374,7 +371,7 @@ class EventDB {
                 for (Integer id : actionCanTrigger.getValue()) {
                     Map<Integer, String> triggers = triggersOf.get(id);
                     if (triggers == null) {
-                        triggers = new HashMap<Integer, String>();
+                        triggers = new HashMap<>();
                         triggersOf.put(id, triggers);
                     }
                     
@@ -399,7 +396,7 @@ class EventDB {
                 for (Integer id : actionCanSleep.getValue()) {
                     Map<Integer, String> slept = sleptBy.get(id);
                     if (slept == null) {
-                        slept = new HashMap<Integer, String>();
+                        slept = new HashMap<>();
                         sleptBy.put(id, slept);
                     }
 
@@ -419,7 +416,7 @@ class EventDB {
     }
     
     private static void writeHeader(String fileTitle, BufferedWriter output, boolean isIndex, boolean isLongPage) throws IOException {
-        output.write(header);
+        output.write(HEADER);
         output.newLine();
 
         output.write("<html>");
@@ -486,7 +483,7 @@ class EventDB {
             for (String name : files) {
                 int num = eventFiles.get(name).size();
                 String events = (num == 1 ? "1 event" : (num + " events"));
-                output.write("<a href=\"" + docFolder + name + ".htm\"><b>" + name + "</b></a> (" + events + ")<br />");
+                output.write("<a href=\"" + DOC_FOLDER + name + ".htm\"><b>" + name + "</b></a> (" + events + ")<br />");
                 output.newLine();
             }
             output.write("</div> <!-- End of list -->");
@@ -549,7 +546,7 @@ class EventDB {
             output.write("<div class=\"index_body\">");
             output.newLine();
             
-            List<Integer> allIds = new ArrayList<Integer>(allEvents.keySet());
+            List<Integer> allIds = new ArrayList<>(allEvents.keySet());
             Collections.sort(allIds);
 
             for (Integer id : allIds) {
@@ -557,7 +554,7 @@ class EventDB {
                 if ("AI_EVENT".equals(e.getName()))
                     continue;
 
-                output.write(makeLink(id, true, docFolder, true));
+                output.write(makeLink(id, true, DOC_FOLDER, true));
                 output.write("<br />");
                 output.newLine();
             }
@@ -611,7 +608,7 @@ class EventDB {
             output.write("<div class=\"index_body\">");
             output.newLine();
 
-            List<Event> events = new ArrayList<Event>(allEvents.values());
+            List<Event> events = new ArrayList<>(allEvents.values());
             Collections.sort(events, Event.SORT_BY_DATE);
 
             for (Event evt : events) {
@@ -628,7 +625,7 @@ class EventDB {
                     output.write(": ");
                 } else if (triggersOf.get(evt.getId()) != null) {
                     output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<Integer>(triggersOf.get(evt.getId()).keySet());
+                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
                     for (int i = 0; i < triggeringEvents.size(); i++) {
                         Event e = allEvents.get(triggeringEvents.get(i));
                         if (e.getStartDate() != null) {
@@ -650,7 +647,7 @@ class EventDB {
                 } else {
                     output.write("<span class=\"error\">Unknown: </span>");
                 }
-                output.write(makeLink(evt.getId(), true, docFolder, false));
+                output.write(makeLink(evt.getId(), true, DOC_FOLDER, false));
                 output.write("<br />");
                 output.newLine();
             }
@@ -706,7 +703,7 @@ class EventDB {
             output.write("<h2>Country Events</h2>");
             output.newLine();
 
-            List<Event> events = new ArrayList<Event>(allEvents.values());
+            List<Event> events = new ArrayList<>(allEvents.values());
             Collections.sort(events, Event.SORT_BY_COUNTRY);
             String lastTag = null;
             int lastProv = -1;
@@ -748,7 +745,7 @@ class EventDB {
                     output.write(": ");
                 } else if (triggersOf.get(evt.getId()) != null) {
                     output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<Integer>(triggersOf.get(evt.getId()).keySet());
+                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
                     for (int i = 0; i < triggeringEvents.size(); i++) {
                         Event e = allEvents.get(triggeringEvents.get(i));
                         if (e.getStartDate() != null) {
@@ -770,7 +767,7 @@ class EventDB {
                 } else {
                     output.write("<span class=\"error\">Unknown: </span>");
                 }
-                output.write(makeLink(evt.getId(), true, docFolder, true));
+                output.write(makeLink(evt.getId(), true, DOC_FOLDER, true));
                 output.write("<br />");
                 output.newLine();
             }
@@ -841,7 +838,7 @@ class EventDB {
             jsDir = dir;
     }
     
-    private static final String header =
+    private static final String HEADER =
             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
     
     private static String title = "%s &ndash; For the Glory Event Documentation";
@@ -860,6 +857,6 @@ class EventDB {
     
     private static String jsDir = "";
     
-    private static final String docFolder = "eventdoc/";
+    private static final String DOC_FOLDER = "eventdoc/";
     
 }
