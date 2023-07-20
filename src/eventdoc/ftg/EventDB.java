@@ -11,8 +11,10 @@ import eug.shared.GenericObject;
 import eug.shared.ObjectVariable;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -112,7 +114,6 @@ class EventDB {
     
     static void generateHTML(String directory) {
         System.out.println("Creating HTML...");
-        BufferedWriter output = null;
 
         File folder = new File(directory + docFolder);
         if (!folder.exists())
@@ -125,9 +126,8 @@ class EventDB {
             System.out.println(file);
             List<Event> events = eventFiles.get(file);
             File page = new File(directory + docFolder + file + ".htm");
-            try {
-                output = new BufferedWriter(new FileWriter(page));
-                writeHeader(file, output, false);
+            try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
+                writeHeader(file, output, false, false);
                 output.write("<body onload=\"toggle('eventlist')\">");
                 output.newLine();
                 
@@ -249,14 +249,6 @@ class EventDB {
                 output.newLine();
             } catch (IOException ex) {
                 System.err.println("Error writing to " + page + "\nPlease ensure output folder exists.");
-            } finally {
-                try {
-                    if (output != null) {
-                        output.close();
-                    }
-                } catch (IOException ex) {
-                    System.err.println("Error closing " + page);
-                }
             }
         }
 
@@ -426,8 +418,7 @@ class EventDB {
         }
     }
     
-    private static void writeHeader(String fileTitle, BufferedWriter output, boolean isIndex) throws IOException {
-
+    private static void writeHeader(String fileTitle, BufferedWriter output, boolean isIndex, boolean isLongPage) throws IOException {
         output.write(header);
         output.newLine();
 
@@ -441,13 +432,11 @@ class EventDB {
         output.newLine();
 
         output.write("<title>");
-//        output.write(fileTitle + " -- FTG Event Documentation");
         output.write(String.format(title, fileTitle));
         output.write("</title>");
         output.newLine();
         
-        // TODO: metas
-        output.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">");
+        output.write("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">");
         output.newLine();
         output.write("<meta http-equiv=\"Content-Language\" content=\"en-us\">");
         output.newLine();
@@ -479,10 +468,8 @@ class EventDB {
     
     private static void writeIndex(String directory, List<String> files) {
         File index = new File(directory + INDEX_NAME);
-        BufferedWriter output = null;
-        try {
-            output = new BufferedWriter(new FileWriter(index));
-            writeHeader("Index", output, true);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(index), StandardCharsets.UTF_8.name()))) {
+            writeHeader("Index", output, true, false);
             output.write("<body>");
             output.newLine();
             writePageStart(output);
@@ -529,23 +516,13 @@ class EventDB {
             output.newLine();
         } catch (IOException ex) {
             System.out.println("Error writing the index file");
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException ex) {
-                System.out.println("Error closing the index file");
-            }
         }
     }
     
     private static void writeLookupPage(String directory) {
         File lookup = new File(directory + ALL_EVENTS_INDEX_NAME);
-        BufferedWriter output = null;
-        try {
-            output = new BufferedWriter(new FileWriter(lookup));
-            writeHeader("All Events", output, true);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
+            writeHeader("All Events", output, true, true);
             
             output.write("<body>");
             output.newLine();
@@ -601,23 +578,13 @@ class EventDB {
             output.newLine();
         } catch (IOException ex) {
             System.out.println("Error writing event index file");
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException ex) {
-                System.out.println("Error closing event index file");
-            }
         }
     }
 
     private static void writeYearlyLookupPage(String directory) {
         File lookup = new File(directory + ALL_EVENTS_BY_YEAR_INDEX_NAME);
-        BufferedWriter output = null;
-        try {
-            output = new BufferedWriter(new FileWriter(lookup));
-            writeHeader("All Events", output, true);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
+            writeHeader("All Events", output, true, true);
 
             output.write("<body>");
             output.newLine();
@@ -704,23 +671,13 @@ class EventDB {
             output.newLine();
         } catch (IOException ex) {
             System.out.println("Error writing event index file");
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException ex) {
-                System.out.println("Error closing event index file");
-            }
         }
     }
     
     private static void writeCountryLookupPage(String directory) {
         File lookup = new File(directory + ALL_EVENTS_BY_COUNTRY_INDEX_NAME);
-        BufferedWriter output = null;
-        try {
-            output = new BufferedWriter(new FileWriter(lookup));
-            writeHeader("All Events", output, true);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
+            writeHeader("All Events", output, true, true);
 
             output.write("<body>");
             output.newLine();
@@ -834,14 +791,6 @@ class EventDB {
             output.newLine();
         } catch (IOException ex) {
             System.out.println("Error writing event index file");
-        } finally {
-            try {
-                if (output != null) {
-                    output.close();
-                }
-            } catch (IOException ex) {
-                System.out.println("Error closing event index file");
-            }
         }
     }
     
