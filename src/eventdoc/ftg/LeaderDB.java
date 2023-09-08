@@ -57,6 +57,9 @@ public class LeaderDB {
                             break;
                         }
                         Leader l = new Leader(scanner);
+                        if (allLeaders.get(l.id) != null) {
+                            System.out.println("Leader ID conflict: " + l.name + " and " + allLeaders.get(l.id) + " both have ID " + l.id);
+                        }
                         allLeaders.put(l.id, l);
                         break;
                     case EOF:
