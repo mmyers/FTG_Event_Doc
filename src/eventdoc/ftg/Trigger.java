@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author Michael
  */
-public abstract class Trigger {
+public abstract class Trigger implements HtmlObject {
 
     static Trigger parseTrigger(EUGScanner scanner) {
         return new MainTrigger(scanner);
@@ -28,11 +28,11 @@ public abstract class Trigger {
         System.out.println(msg);
     }
     
-    abstract void generateHTML(BufferedWriter out) throws IOException;
-    
     String getListStartString() {
         return "<li>";
     }
+    
+    public int getSize() { return 0; }
 }
 
 
@@ -172,7 +172,7 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new InflationTrigger(scanner));
                     } else if (ident.equals("treasury")) {
                         triggers.add(new TreasuryTrigger(scanner));
-                    } else if (ident.equals("tech")) {
+                    } else if (ident.equals("tech") || ident.equals("technology")) {
                         triggers.add(new TechGroupTrigger(scanner));
                     } else if (ident.equals("tag")) {
                         triggers.add(new TagTrigger(scanner));
@@ -230,6 +230,27 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new ReligionGroupTrigger(scanner));
                     } else if (ident.equals("religion_subgroup")) {
                         triggers.add(new ReligionSubgroupTrigger(scanner));
+                    } else if (ident.equals("fantasy")) {
+                        triggers.add(new IsFantasyTrigger(scanner));
+                    } else if (ident.equals("no_dynastic")) {
+                        triggers.add(new IsNoDynasticTrigger(scanner));
+                    } else if (ident.equals("manpower")) {
+                        triggers.add(new ManpowerTrigger(scanner));
+                    } else if (ident.equals("decision")) {
+                        scanner.nextToken();
+                        scanner.pushBack();
+                        if (scanner.lastToken() == TokenType.LBRACE)
+                            triggers.add(new OtherCountryDecisionTrigger(scanner));
+                        else
+                            triggers.add(new DecisionTrigger(scanner));
+                    } else if (ident.equals("month")) {
+                        triggers.add(new MonthTrigger(scanner));
+                    } else if (ident.equals("day")) {
+                        triggers.add(new DayTrigger(scanner));
+                    } else if (ident.equals("num_of_goods")) {
+                        triggers.add(new NumOfGoodsTrigger(scanner));
+                    } else if (ident.equals("num_of_buildings")) {
+                        triggers.add(new NumOfBuildingsTrigger(scanner));
                     } else if (ident.length() == 3) {
                         // assume it's a country trigger
                         triggers.add(new OtherCountryTrigger(scanner));
@@ -248,7 +269,7 @@ abstract class CombinedTrigger extends Trigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("<ul class=\"trigger\">");
         out.newLine();
         for (Trigger t : triggers) {
@@ -267,6 +288,11 @@ abstract class CombinedTrigger extends Trigger {
     String getListStartString() {
         return "<li class=\"combo\">";
     }
+    
+    @Override
+    public int getSize() { 
+        return triggers.size();
+    }
 }
 
 
@@ -277,13 +303,13 @@ class MainTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (triggers.size() == 1 && triggers.get(0) instanceof AndTrigger)
             System.out.println(Event.currentId + ": Style issue: Trigger contains only a single AND-element");
         super.generateHTML(out);
     }
-    
 }
+
 class AndTrigger extends CombinedTrigger {
 
     AndTrigger(EUGScanner scanner) {
@@ -291,7 +317,7 @@ class AndTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (triggers.size() == 1)
             System.out.println(Event.currentId + ": Style issue: AND-block in trigger with only one element");
         out.write("All of the following must occur:");
@@ -307,7 +333,7 @@ class OrTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (triggers.size() == 1)
             System.out.println(Event.currentId + ": Style issue: OR-block in trigger with only one element");
         out.write("At least one of the following must occur:");
@@ -323,7 +349,7 @@ class NotTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (triggers.size() == 1 && triggers.get(0) instanceof OrTrigger)
             System.out.println(Event.currentId + ": Style issue: NOT-block with only an OR-block subelement (redundant)");
         if (triggers.size() == 1)
@@ -349,7 +375,7 @@ class OtherCountryTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("All of the following must be true for " + EventDB.formatCountry(tag) + ":");
         out.newLine();
         super.generateHTML(out);
@@ -378,7 +404,7 @@ class SomeOfTrigger extends CombinedTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("At least " + number + " of the following must be true:");
         out.newLine();
         super.generateHTML(out);
@@ -408,7 +434,7 @@ class ReligionTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("State religion is " + value);
     }
 }
@@ -420,7 +446,7 @@ class FlagTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (!value.contains(" "))
             out.write("Flag " + value + " is set");
         else
@@ -465,7 +491,7 @@ class LeaderTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(LeaderDB.format(value) + " is active");
     }
 }
@@ -477,7 +503,7 @@ class MonarchTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Monarch " + MonarchDB.format(value) + " is active");
     }
 }
@@ -489,7 +515,7 @@ class EventTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Event " + EventDB.makeLink(value) + " has already occurred");
     }
 }
@@ -501,7 +527,7 @@ class CountrySizeTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Country has at least " + value + " non-colonial province" + (value == 1 ? "" : "s"));
     }
 }
@@ -513,7 +539,7 @@ class BadboyTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Badboy is at " + value + " or higher");
     }
 }
@@ -575,7 +601,7 @@ class OwnedTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write("Own " + ProvinceDB.format(province));
         else
@@ -591,7 +617,7 @@ class ControlTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write("Control " + ProvinceDB.format(province));
         else
@@ -606,7 +632,7 @@ class CoreTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write(ProvinceDB.format(province) + " is a national (core) province");
         else
@@ -621,7 +647,7 @@ class ProvinceReligionTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(ProvinceDB.format(province) + " has religion " + Text.getText(data));
     }
 }
@@ -633,7 +659,7 @@ class ProvinceCultureTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(ProvinceDB.format(province) + " has culture " + Text.getText("culture_" + data));
     }
 }
@@ -645,7 +671,7 @@ class ContinentTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Capital is on continent " + Text.getText(GeographyDB.getName(value)));
     }
 }
@@ -658,7 +684,7 @@ class RegionTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Capital is in the region " + Text.getText(GeographyDB.getName(value)));
     }
 }
@@ -671,7 +697,7 @@ class AreaTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Capital is in the area " + Text.getText(GeographyDB.getName(value)));
     }
 }
@@ -683,7 +709,7 @@ class ExistTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(value) + " exists");
     }
 }
@@ -695,7 +721,7 @@ class NeighbourTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(value) + " is a neighbor");
     }
 }
@@ -751,7 +777,7 @@ class AllianceTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag1) + " and " + EventDB.formatCountry(ctag2) + " are allied");
     }
 }
@@ -763,7 +789,7 @@ class WarTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag1) + " and " + EventDB.formatCountry(ctag2) + " are at war");
     }
 }
@@ -775,7 +801,7 @@ class DynasticTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag1) + " and " + EventDB.formatCountry(ctag2) + " have a royal marriage");
     }
 }
@@ -787,7 +813,7 @@ class VassalTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag2) + " is a vassal of " + EventDB.formatCountry(ctag1));
     }
 }
@@ -799,17 +825,17 @@ class IsOurVassalTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is the overlord of " + EventDB.formatCountry(value));
     }
 }
 
-class RelationTrigger extends Trigger {
+abstract class CountryDataTrigger extends Trigger {
 
     protected String tag;
-    protected int relation;
+    protected int data;
 
-    protected RelationTrigger(EUGScanner scanner) {
+    protected CountryDataTrigger(EUGScanner scanner) {
         if (scanner.nextToken() != TokenType.LBRACE) {
             warn("Expected '{'", scanner.getLine(), scanner.getColumn());
         }
@@ -837,19 +863,25 @@ class RelationTrigger extends Trigger {
         }
 
         if (scanner.nextToken() != TokenType.ULSTRING) {
-            warn("Expected relation value", scanner.getLine(), scanner.getColumn());
+            warn("Expected data value", scanner.getLine(), scanner.getColumn());
         }
 
-        relation = Integer.parseInt(scanner.lastStr());
+        data = Integer.parseInt(scanner.lastStr());
 
         if (scanner.nextToken() != TokenType.RBRACE) {
             warn("Expected '}'", scanner.getLine(), scanner.getColumn());
         }
     }
+}
+
+class RelationTrigger extends CountryDataTrigger {
+    RelationTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
-        out.write("Relations with " + EventDB.formatCountry(tag) + " are at " + relation + " or higher");
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write("Relations with " + EventDB.formatCountry(tag) + " are at " + data + " or higher");
     }
 }
 
@@ -897,7 +929,7 @@ class DomesticTrigger extends Trigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(Text.getText("domname_" + type.substring(0, 3) + "_r") + " is at " + value + " or higher");
     }
 }
@@ -909,7 +941,7 @@ class StabilityTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Stability is at " + value + " or higher");
     }
 }
@@ -921,7 +953,7 @@ class LandTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Land tech is at " + value + " or higher");
     }
 }
@@ -933,7 +965,7 @@ class NavalTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Naval tech is at " + value + " or higher");
     }
 }
@@ -945,7 +977,7 @@ class InfraTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Infrastructure tech is at " + value + " or higher");
     }
 }
@@ -957,7 +989,7 @@ class TradeTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Trade tech is at " + value + " or higher");
     }
 }
@@ -969,7 +1001,7 @@ class DiscoveredTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(ProvinceDB.format(value) + " has been discovered by Europeans");
     }
 }
@@ -981,7 +1013,7 @@ class COTTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(ProvinceDB.format(value) + " is a center of trade");
     }
 }
@@ -1009,7 +1041,7 @@ class AtWarTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(value ? "Country is at war" : "Country is not at war");
     }
 }
@@ -1021,7 +1053,7 @@ class AITrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(value ? "Country is controlled by AI" : "Country is controlled by human");
     }
 }
@@ -1033,7 +1065,7 @@ class EmperorTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Country " + (value ? "is" : "is not") + " the emperor of the Holy Roman Empire");
     }
 }
@@ -1045,7 +1077,7 @@ class ElectorTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Country " + (value ? "is" : "is not") + " an elector of the Holy Roman Empire");
     }
 }
@@ -1056,7 +1088,7 @@ class YearTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("It is the year " + value + " or later");
     }
 }
@@ -1072,7 +1104,7 @@ class RandomTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(value + "% chance");
     }
 }
@@ -1083,7 +1115,7 @@ class AccessTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have military access through " + EventDB.formatCountry(value));
     }
 }
@@ -1094,7 +1126,7 @@ class TradingPostTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have a trading post in " + ProvinceDB.format(value));
     }
 }
@@ -1105,7 +1137,7 @@ class ColonyTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have a colony in " + ProvinceDB.format(value));
     }
 }
@@ -1116,7 +1148,7 @@ class ColonialCityTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have a colonial city in " + ProvinceDB.format(value));
     }
 }
@@ -1127,7 +1159,7 @@ class CityTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have a city in " + ProvinceDB.format(value));
     }
 }
@@ -1138,7 +1170,7 @@ class IsVassalTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (value)
             out.write("Is a vassal");
         else
@@ -1152,7 +1184,7 @@ class IsOverlordTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (value)
             out.write("Have at least one vassal");
         else
@@ -1236,7 +1268,7 @@ class ControlChangeTrigger extends ProvinceDateTrigger {
     }
     
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have controlled " + ProvinceDB.format(provId) + " for " + getTimeSpan());
     }
 }
@@ -1247,7 +1279,7 @@ class OwnerChangeTrigger extends ProvinceDateTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have owned " + ProvinceDB.format(provId) + " for " + getTimeSpan());
     }
 }
@@ -1258,7 +1290,7 @@ class InflationTrigger extends FloatTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have more than " + String.format("%.1f", value*100.0) + "% inflation");
     }
 }
@@ -1269,7 +1301,7 @@ class TreasuryTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Have more than " + value + EventDB.getCoinLink());
     }
 }
@@ -1280,7 +1312,7 @@ class TechGroupTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("In the " + Text.getText("techgroup_" + value) + " technology group");
     }
 }
@@ -1291,7 +1323,7 @@ class TagTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is " + EventDB.formatCountry(value));
     }
 }
@@ -1302,7 +1334,7 @@ class CapitalTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(ProvinceDB.format(value) + " is the capital");
     }
 }
@@ -1313,7 +1345,7 @@ class ProvincePopTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Population in " + ProvinceDB.format(province) + " is at least " + Integer.parseInt(data));
     }
 }
@@ -1324,7 +1356,7 @@ class FortressLevelTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Fortress in " + ProvinceDB.format(province) + " is at least level " + Integer.parseInt(data));
     }
 }
@@ -1335,7 +1367,7 @@ class CoreNationalTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write(ProvinceDB.format(province) + " is a national province");
         else
@@ -1349,7 +1381,7 @@ class CoreClaimTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write(ProvinceDB.format(province) + " is a claim province");
         else
@@ -1363,7 +1395,7 @@ class CoreCasusBelliTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         if (data.equals("-1"))
             out.write(ProvinceDB.format(province) + " is a casus belli province");
         else
@@ -1377,7 +1409,7 @@ class CityCultureTrigger extends ProvinceTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("City sprite graphics in " + ProvinceDB.format(province) + " are " + Text.getText("culture_" + data));
     }
 }
@@ -1389,7 +1421,7 @@ class TruceTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag1) + " and " + EventDB.formatCountry(ctag2) + " have a truce");
     }
 }
@@ -1401,7 +1433,7 @@ class UnionTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag2) + " is in a union with " + EventDB.formatCountry(ctag1));
     }
 }
@@ -1413,7 +1445,7 @@ class IsUnionWithUsTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is in a union with " + EventDB.formatCountry(value));
     }
 }
@@ -1424,7 +1456,7 @@ class CultureTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(Text.getText("culture_" + value) + " is a state culture");
     }
 }
@@ -1435,7 +1467,7 @@ class HreTrigger extends BooleanTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Country's capital " + (value ? "is" : "is not") + " in the Holy Roman Empire");
     }
 }
@@ -1450,7 +1482,7 @@ class OfficialsTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Country has at least " + value + " " + type);
     }
 }
@@ -1462,7 +1494,7 @@ class OverlordTrigger extends CountryTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write(EventDB.formatCountry(ctag2) + " is a vassal of " + EventDB.formatCountry(ctag1));
     }
 }
@@ -1474,7 +1506,7 @@ class IsOurOverlordTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is a vassal of " + EventDB.formatCountry(value));
     }
 }
@@ -1486,7 +1518,7 @@ class NumOfPortsTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Has at least " + value + " port" + (value == 1 ? "" : "s"));
     }
 }
@@ -1498,7 +1530,7 @@ class NumOfColoniesTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Has at least " + value + " colon" + (value == 1 ? "y" : "ies"));
     }
 }
@@ -1510,7 +1542,7 @@ class NumOfTradingPostsTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Has at least " + value + " trading post" + (value == 1 ? "" : "s"));
     }
 }
@@ -1522,7 +1554,7 @@ class NumOfCotsTrigger extends IntTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Has at least " + value + " center" + (value == 1 ? "" : "s") + " of trade");
     }
 }
@@ -1534,7 +1566,7 @@ class ReligionGroupTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is in the " + Text.getText("religion_" + value) + " religious group");
     }
 }
@@ -1546,7 +1578,216 @@ class ReligionSubgroupTrigger extends StringTrigger {
     }
 
     @Override
-    void generateHTML(BufferedWriter out) throws IOException {
+    public void generateHTML(BufferedWriter out) throws IOException {
         out.write("Is in the " + Text.getText("religion_" + value) + " religious subgroup");
     }
 }
+
+class DecisionTrigger extends IntTrigger {
+
+    DecisionTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write("Decision " + EventDB.makeDecisionLink(value) + " has already occurred");
+    }
+}
+
+class OtherCountryDecisionTrigger extends CountryDataTrigger {
+
+    OtherCountryDecisionTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(EventDB.formatCountry(tag) + " has made the decision " + EventDB.makeDecisionLink(data));
+    }
+}
+
+class IsFantasyTrigger extends BooleanTrigger {
+    IsFantasyTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        if (value)
+            out.write(Text.getTextCleaned("TRIGGER_FANTASY"));
+        else
+            out.write(Text.getTextCleaned("TRIGGER_FANTASY_NOT"));
+    }
+}
+
+class IsNoDynasticTrigger extends BooleanTrigger {
+    IsNoDynasticTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        if (value)
+            out.write(Text.getTextCleaned("TRIGGER_NO_DYNASTIC"));
+        else
+            out.write(Text.getTextCleaned("TRIGGER_NO_DYNASTIC_NOT"));
+    }
+}
+
+class ManpowerTrigger extends IntTrigger {
+    ManpowerTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_MANPOWER"), value));
+    }
+}
+
+class MonthTrigger extends Trigger {
+    private static final String[] months = {
+        "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"
+    };
+    private int value;
+    MonthTrigger(EUGScanner scanner) {
+        TokenType next = scanner.nextToken();
+
+        if (scanner.lastStr().equalsIgnoreCase("january")) {
+            value = 0;
+        } else if (scanner.lastStr().equalsIgnoreCase("february")) {
+            value = 1;
+        } else if (scanner.lastStr().equalsIgnoreCase("march")) {
+            value = 2;
+        } else if (scanner.lastStr().equalsIgnoreCase("april")) {
+            value = 3;
+        } else if (scanner.lastStr().equalsIgnoreCase("may")) {
+            value = 4;
+        } else if (scanner.lastStr().equalsIgnoreCase("june")) {
+            value = 5;
+        } else if (scanner.lastStr().equalsIgnoreCase("july")) {
+            value = 6;
+        } else if (scanner.lastStr().equalsIgnoreCase("august")) {
+            value = 7;
+        } else if (scanner.lastStr().equalsIgnoreCase("september")) {
+            value = 8;
+        } else if (scanner.lastStr().equalsIgnoreCase("october")) {
+            value = 9;
+        } else if (scanner.lastStr().equalsIgnoreCase("november")) {
+            value = 10;
+        } else if (scanner.lastStr().equalsIgnoreCase("december")) {
+            value = 11;
+        } else if (next == TokenType.ULSTRING) {
+            value = Integer.parseInt(scanner.lastStr());
+            if (value < 0) {
+                warn("Unexpected month value: " + value + " (must be 0-11 or a month name)", scanner.getLine(), scanner.getColumn());
+                value = 0;
+            } else if (value > 11) {
+                warn("Unexpected month value: " + value + " (must be 0-11 or a month name)", scanner.getLine(), scanner.getColumn());
+                value = 11;
+            }
+        } else {
+            warn("Unexpected month value: " + next + " (expected integer or month)", scanner.getLine(), scanner.getColumn());
+        }
+
+    }
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_MONTH"), Text.getText(months[value])));
+    }
+}
+
+class DayTrigger extends IntTrigger {
+    DayTrigger(EUGScanner scanner) {
+        super(scanner);
+    }
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_DAY"), value));
+    }
+}
+
+abstract class CountOfTypeTrigger extends Trigger {
+    protected String type;
+    protected int data;
+    CountOfTypeTrigger(EUGScanner scanner) {
+        if (scanner.nextToken() != TokenType.LBRACE) {
+            warn("Expected '{'", scanner.getLine(), scanner.getColumn());
+        }
+
+        if (scanner.nextToken() != TokenType.IDENT) {
+            warn("Expected \"type =\"", scanner.getLine(), scanner.getColumn());
+        }
+
+        if (!scanner.lastStr().equalsIgnoreCase("type")) {
+            warn("Expected \"type =\"", scanner.getLine(), scanner.getColumn());
+        }
+        scanner.nextToken();
+        type = scanner.lastStr();
+
+        if (scanner.nextToken() != TokenType.IDENT) {
+            warn("Expected \"data =\"", scanner.getLine(), scanner.getColumn());
+        }
+
+        if (!scanner.lastStr().equalsIgnoreCase("data")) {
+            warn("Expected \"data =\"", scanner.getLine(), scanner.getColumn());
+        }
+
+        if (scanner.nextToken() != TokenType.ULSTRING) {
+            warn("Expected data value", scanner.getLine(), scanner.getColumn());
+        }
+
+        data = Integer.parseInt(scanner.lastStr());
+
+        if (scanner.nextToken() != TokenType.RBRACE) {
+            warn("Expected '}'", scanner.getLine(), scanner.getColumn());
+        }
+    }
+}
+
+class NumOfGoodsTrigger extends CountOfTypeTrigger {
+    NumOfGoodsTrigger(EUGScanner scanner) {
+        super(scanner);
+        
+        type = Text.getText("goods_" + type);
+        if (type.startsWith("goods_"))
+            warn("Unknown goods type \"" + type + "\" in num_of_goods trigger", scanner.getLine(), scanner.getColumn());
+    }
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_NUM_OF_GOODS"), data, type));
+    }
+}
+
+class NumOfBuildingsTrigger extends CountOfTypeTrigger {
+    NumOfBuildingsTrigger(EUGScanner scanner) {
+        super(scanner);
+        
+        type = getBuilding();
+        if (type.startsWith("trigger_building_"))
+            warn("Unknown building type \"" + type + "\" in num_of_buildings trigger", scanner.getLine(), scanner.getColumn());
+    }
+    private final String getBuilding() {
+        if (type.equalsIgnoreCase("luxury")) {
+            return Text.getText("facility_luxurygoods");
+        } else if (type.equalsIgnoreCase("weapons")) {
+            return Text.getText("facility_weapons");
+        } else if (type.equalsIgnoreCase("navalequipment")) {
+            return Text.getText("facility_navalequipments");
+        } else if (type.equalsIgnoreCase("refinery")) {
+            return Text.getText("facility_refinery");
+        } else if (type.equalsIgnoreCase("goods")) {
+            return Text.getText("facility_manufacturedgoods");
+        } else {
+            return Text.getText("trigger_building_" + type);
+        }
+    }
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_NUM_OF_BUILDINGS"), data, type));
+    }
+}
+

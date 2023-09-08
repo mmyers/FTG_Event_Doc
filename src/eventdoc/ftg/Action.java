@@ -17,7 +17,7 @@ import java.util.List;
  *
  * @author Michael
  */
-class Action {
+class Action implements HtmlObject {
 
     private String name;
     private int aiChance = -1;
@@ -65,15 +65,22 @@ class Action {
         return aiChance;
     }
     
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        generateHTML(out, '0', -1);
+    }
+    
     public void generateHTML(BufferedWriter out, char action, int totalChance) throws IOException {
-        out.write("<h4 class=\"action_title\">");
-        out.write(action);
-        out.write(". ");
-        out.write(Text.getText(name));
-        out.write("</h4>");
-        out.newLine();
-        if (aiChance != -1) {
-            out.write("AI chance: " + (int)(((double)aiChance/totalChance)*100) + "%");
+        if (action != '0') {
+            out.write("<h4 class=\"action_title\">");
+            out.write(action);
+            out.write(". ");
+            out.write(Text.getText(name));
+            out.write("</h4>");
+            out.newLine();
+            if (aiChance != -1) {
+                out.write("AI chance: " + (int)(((double)aiChance/totalChance)*100) + "%");
+            }
         }
 
         if (trigger != null) {

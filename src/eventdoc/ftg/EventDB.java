@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -29,14 +30,18 @@ import java.util.Map;
  */
 class EventDB {
 
-    private static final Map<String, List<Event>> eventFiles = new HashMap<>(50);
+    private static final Map<String, List<HtmlObject>> eventFiles = new HashMap<>(50);
     
     private static final Map<Integer, Event> allEvents = new HashMap<>(5000);
+    private static final Map<Integer, Decision> allDecisions = new HashMap<>(5000);
 
     private static final Map<Integer, String> eventsInFiles = new HashMap<>(5000);
+    private static final Map<Integer, String> decisionsInFiles = new HashMap<>(5000);
     
-    private static final Map<Integer, String> names = new HashMap<>(5000);
-    private static final Map<Integer, String> descs = new HashMap<>(5000);
+    private static final Map<Integer, String> eventNames = new HashMap<>(5000);
+    private static final Map<Integer, String> eventDescs = new HashMap<>(5000);
+    private static final Map<Integer, String> decisionNames = new HashMap<>(5000);
+    private static final Map<Integer, String> decisionDescs = new HashMap<>(5000);
     
     private static final String INDEX_NAME = "eventdoc.htm";
     private static final String ALL_EVENTS_INDEX_NAME = "all_events.htm";
@@ -56,7 +61,8 @@ class EventDB {
         for (ObjectVariable var : file.values) {
             if (var.varname.equalsIgnoreCase("include")) {
                 loadEvents(rootDir + File.separator + var.getValue(), rootDir); // recursion
-            } else if (var.varname.equalsIgnoreCase("event")) {
+            } else if (var.varname.equalsIgnoreCase("event")
+                    || (var.varname.equalsIgnoreCase("decision"))) {
                 parseEvents(rootDir + File.separator + var.getValue());
             } else {
                 System.out.println("Don't know what to do with variable " + var.varname);
@@ -75,18 +81,27 @@ class EventDB {
         File file = new File(eventFile);
         System.out.println("Parsing " + file.getAbsolutePath());
         
-        List <Event> currentFile = new ArrayList<>(20);
+        List<HtmlObject> currentFile = new ArrayList<>(20);
         eventFiles.put(file.getName(), currentFile);
         
-        List<Event> events = new EventParser(file).parse();
-        for (Event event : events) {
-            currentFile.add(event);
-            allEvents.put(event.getId(), event);
-            names.put(event.getId(), event.getName());
-            descs.put(event.getId(), event.getDesc());
-            eventsInFiles.put(event.getId(), file.getName());
+        List<HtmlObject> events = new EventParser(file).parse();
+        for (HtmlObject eventOrDec : events) {
+            currentFile.add(eventOrDec);
+            if (eventOrDec instanceof Event) {
+                Event event = (Event) eventOrDec;
+                allEvents.put(event.getId(), event);
+                eventNames.put(event.getId(), event.getName());
+                eventDescs.put(event.getId(), event.getDesc());
+                eventsInFiles.put(event.getId(), file.getName());
+            } else if (eventOrDec instanceof Decision) {
+                Decision dec = (Decision) eventOrDec;
+                allDecisions.put(dec.getId(), dec);
+                decisionNames.put(dec.getId(), dec.getName());
+                decisionDescs.put(dec.getId(), dec.getDesc());
+                decisionsInFiles.put(dec.getId(), file.getName());
+            } 
         }
-        Collections.sort(currentFile, Event.SORT_BY_DATE);
+        Collections.sort(currentFile, SORT_BY_DATE_DECISIONS_FIRST);
     }
 
     public static Event getEvent(int id) {
@@ -124,7 +139,7 @@ class EventDB {
 
         for (String file : files) {
             System.out.println(file);
-            List<Event> events = eventFiles.get(file);
+            List<HtmlObject> events = eventFiles.get(file);
             File page = new File(directory + DOC_FOLDER + file + ".htm");
             try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
                 writeHeader(file, output, false, false);
@@ -149,30 +164,40 @@ class EventDB {
                 output.write("<div class=\"eventlist\" id=\"eventlist\">");
                 output.newLine();
 
-                for (Event evt : events) {
+                for (HtmlObject evtOrDec : events) {
+                    if (evtOrDec instanceof Decision) {
+                        output.write("Decision ");
+                        output.write(makeDecisionLink(((Decision)evtOrDec).getId(), false, null, true));
+                        output.write("<br />");
+                        output.newLine();
+                        continue;
+                    }
+                    if (!(evtOrDec instanceof Event))
+                        continue;
+                    Event evt = (Event) evtOrDec;
                     if (evt.isRandom()) {
                         output.write("Random: ");
                     } else if (triggersOf.get(evt.getId()) != null) {
-                    output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
-                    for (int i = 0; i < triggeringEvents.size(); i++) {
-                        Event e = allEvents.get(triggeringEvents.get(i));
-                        if (e.getStartDate() != null) {
-                            output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
-                            if (e.getEndDate() != null) {
-                                output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
+                        output.write("Triggered (");
+                        List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
+                        for (int i = 0; i < triggeringEvents.size(); i++) {
+                            Event e = allEvents.get(triggeringEvents.get(i));
+                            if (e.getStartDate() != null) {
+                                output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
+                                if (e.getEndDate() != null) {
+                                    output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
+                                }
+                            } else if (e.isRandom()) {
+                                output.write("random event");
+                            } else if (triggersOf.get(e.getId()) != null) {
+                                output.write("triggered event");
+                            } else {
+                                output.write("unknown event");
                             }
-                        } else if (e.isRandom()) {
-                            output.write("random event");
-                        } else if (triggersOf.get(e.getId()) != null) {
-                            output.write("triggered event");
-                        } else {
-                            output.write("unknown event");
+                            if (i < triggeringEvents.size() - 1)
+                                output.write(", ");
                         }
-                        if (i < triggeringEvents.size() - 1)
-                            output.write(", ");
-                    }
-                    output.write("): ");
+                        output.write("): ");
                     } else if (evt.getStartDate() != null) {
                         output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
                         if (evt.getEndDate() != null) {
@@ -209,8 +234,8 @@ class EventDB {
                 output.write("<div class=\"main\">");
                 output.newLine();
 
-                // Events
-                for (Event evt : events) {
+                // Events/Decisions
+                for (HtmlObject evt : events) {
                     evt.generateHTML(output);
                     output.newLine();
                     output.write(betweenEvents);
@@ -319,7 +344,7 @@ class EventDB {
         ret.append(">");
         if (includeID)
             ret.append(eventID).append(" - ");
-        ret.append(Text.getText(names.get(eventID)));
+        ret.append(Text.getText(eventNames.get(eventID)));
         ret.append("</a>");
         
         ret.append(" for ");
@@ -329,6 +354,37 @@ class EventDB {
             ret.append(ProvinceDB.format(province));
         else
             ret.append("all countries");
+        
+        return ret.toString();
+    }
+    
+    static final String makeDecisionLink(final int decisionID) {
+        return makeDecisionLink(decisionID, true, null, false);
+    }
+    
+    static final String makeDecisionLink(int decisionID, boolean underlined, String dir, boolean includeID) {
+        String filename = decisionsInFiles.get(decisionID);
+        
+        if (filename == null) {
+            System.out.println("Cannot find decision " + decisionID);
+            return "<span class=\"error\" title=\"Decision&nbsp;not&nbsp;found\">"+decisionID+"</span>";
+        }
+
+        if (dir != null) {
+            filename = dir + filename;
+        }
+        
+        final StringBuilder ret = new StringBuilder();
+        
+        ret.append("<a href=\"").append(filename).append(".htm#dec").append(decisionID).append("\"");
+        
+        if (underlined)
+            ret.append(" class=\"a_und\"");
+        ret.append(">");
+        if (includeID)
+            ret.append(decisionID).append(" - ");
+        ret.append(Text.getText(decisionNames.get(decisionID)));
+        ret.append("</a>");
         
         return ret.toString();
     }
@@ -858,5 +914,23 @@ class EventDB {
     private static String jsDir = "";
     
     private static final String DOC_FOLDER = "eventdoc/";
+    
+    
+    
+    private static final Comparator<Object> SORT_BY_DATE_DECISIONS_FIRST = new Comparator<Object>() {
+        @Override
+        public int compare(Object o1, Object o2) {
+            if (o1 instanceof Event && o2 instanceof Decision)
+                return 1;
+            if (o1 instanceof Decision && o2 instanceof Event)
+                return -1;
+            
+            if (o1 instanceof Event && o2 instanceof Event)
+                return Event.SORT_BY_DATE.compare((Event)o1, (Event)o2);
+            if (o1 instanceof Decision && o2 instanceof Decision)
+                return Decision.SORT_BY_ID.compare((Decision)o1, (Decision)o2);
+            return 0;
+        }
+    };
     
 }

@@ -35,14 +35,16 @@ public class EventParser {
         }
     }
     
-    public List<Event> parse() {
-        final List<Event> ret = new ArrayList<Event>();
+    public List<HtmlObject> parse() {
+        final List<HtmlObject> ret = new ArrayList<>();
         
         parseLoop: while (true) {
             switch (scanner.nextToken()) {
                 case IDENT:
                     if (scanner.lastStr().equalsIgnoreCase("event")) {
                         ret.add(new Event(scanner));
+                    } else if (scanner.lastStr().equalsIgnoreCase("decision")) {
+                        ret.add(new Decision(scanner));
                     } else {
                         warn("Invalid definition: " + scanner.lastStr());
                     }

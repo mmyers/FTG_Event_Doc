@@ -32,19 +32,22 @@ final class Text {
         // won't look in the parent directory unless there's a mod file.
         // (This is how FTG does it anyway.)
         String folder = textDir + "\\" + language + "\\";
-        loadTextFile(Main.resolver.resolveFilename(folder + "countries.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "cultures.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "events.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "geography.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "goods.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "interface.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "misc.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "countries.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "geography.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "provinces.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "cultures.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "terrains.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "goods.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "technologies.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "religions.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "scenarios.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "technologies.csv"));
-        loadTextFile(Main.resolver.resolveFilename(folder + "terrains.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "rebels.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "events.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "decisions.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "triggers.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "addendum.csv"));
+        loadTextFile(Main.resolver.resolveFilename(folder + "misc.csv"));
         loadTextFile(Main.resolver.resolveFilename(folder + "1.3.csv"));
 
 //        for (File f : Main.resolver.listFiles(textDir + "\\" + language)) {
@@ -108,5 +111,10 @@ final class Text {
         
         final String ret = text.get(key.toLowerCase());
         return (ret != null ? ret : key);
+    }
+    
+    static String getTextCleaned(final String key) {
+        String ret = getText(key);
+        return ret.replace("\\n", "").replace("§Y", "").replace("§W", "");
     }
 }

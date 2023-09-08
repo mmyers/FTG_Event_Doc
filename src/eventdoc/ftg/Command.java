@@ -264,6 +264,8 @@ public class Command {
             commandType = new AiRemCommand(scanner);
         } else if (command.equals("ai_set")) {
             commandType = new AiSetCommand(scanner);
+        } else if (command.equals("free")) {
+            commandType = new FreeCommand(scanner);
         } else {
             warn("Unknown command type: " + command, scanner.getLine(), scanner.getColumn());
             while (scanner.nextToken() != TokenType.RBRACE) { }
@@ -338,6 +340,8 @@ public class Command {
                         } else if (ident.equals("where")) {
                             scanner.nextToken();
                             where = scanner.lastStr();
+                        } else if (ident.equals("required")) {
+                            scanner.nextToken(); // don't care about required
                         } else {
                             warn("Unknown variable in command (expected which/value/where): "
                                     + scanner.lastStr(), scanner.getLine(), scanner.getColumn());
@@ -391,6 +395,10 @@ public class Command {
                 return "-9";
             } else if (s.equalsIgnoreCase("overlord")) {
                 return "-10";
+            } else if (s.equalsIgnoreCase("random_same_religion")) {
+                return "-11";
+            } else if (s.equalsIgnoreCase("random_same_religious_group")) {
+                return "-12";
             }
             
             return which; //scanner.lastStr();
@@ -534,6 +542,10 @@ public class Command {
                 return "a different random elector";
             } else if (tag.equals("-10")) {
                 return "the overlord";
+            } else if (tag.equals("-11")) {
+                return "a random country with the same religion";
+            } else if (tag.equals("-12")) {
+                return "a random country in the same religious group";
             } else {
                 return EventDB.formatCountry(tag);
             }
@@ -572,7 +584,11 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write(getProvCap() + " revolts");
+            if (getValue() != null) {
+                out.write(EventDB.formatCountry(getValue()) + " revolt in " + getProv());
+            } else {
+                out.write(getProvCap() + " revolts");
+            }
         }
     }
 
@@ -1172,7 +1188,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Grant independence to " + getCountry());
+            out.write("Grant independence to " + getCountry() + " as a vassal");
         }
     }
     
@@ -1735,7 +1751,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write(ProvinceDB.format(which) + (value ? " enters" : " leaves") + " the Holy Roman Empire");
+            out.write(getProvCap(which) + (value ? " enters" : " leaves") + " the Holy Roman Empire");
         }
     }
     
@@ -2092,6 +2108,17 @@ public class Command {
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
             out.write("AI sets the preference \"" + getWhich() + "\" to \"" + getValue() + "\"");
+        }
+    }
+    
+    private static class FreeCommand extends TagCommand {
+        FreeCommand(EUGScanner scanner) {
+            super(scanner);
+        }
+
+        @Override
+        protected void generateHTML(BufferedWriter out) throws IOException {
+            out.write("Grant independence to " + getCountry());
         }
     }
 }

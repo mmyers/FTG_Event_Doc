@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Event {
+public class Event implements HtmlObject {
 
     private int id;
     private Trigger trigger;
@@ -137,7 +137,8 @@ public class Event {
     // Used only when generating warnings in Trigger.java during HTML output.
     static int currentId = -1;  // extremely bad practice, but it's the best I could do on short notice
 
-    void generateHTML(BufferedWriter out) throws IOException {
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
         currentId = id;
         
         out.write("<div class=\"event\">");
@@ -279,11 +280,11 @@ public class Event {
      */
     Map<Character, List<Integer>> canTrigger() {
         if (canTrigger == null) {
-            canTrigger = new HashMap<Character, List<Integer>>();
+            canTrigger = new HashMap<>();
 
             int actionLetter = 'A';
             for (Action action : actions) {
-                List<Integer> tmp = new ArrayList<Integer>();
+                List<Integer> tmp = new ArrayList<>();
                 for (Command command : action.getCommands()) {
                     int otherId = command.getTriggeredEvent();
                     if (otherId > 0) {
@@ -301,10 +302,10 @@ public class Event {
 
     Map<Character, List<Integer>> canSleep() {
         if (canSleep == null) {
-            canSleep = new HashMap<Character, List<Integer>>();
+            canSleep = new HashMap<>();
             int actionLetter = 'A';
             for (Action action : actions) {
-                List<Integer> tmp = new ArrayList<Integer>();
+                List<Integer> tmp = new ArrayList<>();
                 for (Command command : action.getCommands()) {
                     int otherId = command.getSleptEvent();
                     if (otherId > 0) {
