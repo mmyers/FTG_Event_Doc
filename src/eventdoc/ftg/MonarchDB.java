@@ -11,6 +11,9 @@ import eug.parser.TokenType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -24,8 +27,7 @@ import java.util.regex.Pattern;
  */
 public class MonarchDB {
     
-    private static final Map<Integer, Monarch> allMonarchs =
-            new HashMap<Integer, Monarch>(5000);
+    private static final Map<Integer, Monarch> allMonarchs = new HashMap<>(5000);
     
 //    private static final Map<String, Map<Integer, Monarch>> byCountry =
 //            new HashMap<String, Map<Integer, Monarch>>(200);
@@ -33,7 +35,6 @@ public class MonarchDB {
     public static void init(String directory) {
         System.out.println("Parsing monarchs from " + directory);
         for (File f : Main.resolver.listFiles(directory)) {
-            //String tag = f.getPath().substring(f.getPath().lastIndexOf('.') + 1);
             String tag = f.getPath().substring(f.getPath().lastIndexOf('_') + 1, f.getPath().lastIndexOf('.'));
             if (Text.getText(tag).equalsIgnoreCase(tag)) {
                 continue;   // not a country tag
@@ -41,11 +42,17 @@ public class MonarchDB {
             
             parse(f, tag);
         }
+        try {
+            Files.write(Paths.get("monarchs.txt"), (Iterable<String>)allMonarchs.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().name.replace("&nbsp;", " "); })
+                    .map(String::valueOf)::iterator);
+        } catch (IOException ex) {
+        }
         System.out.println("Finished monarchs");
     }
 
     private static void parse(File f, String tag) {
-//        System.out.println(f);
         try {
             EUGScanner scanner = new EUGScanner(new FileReader(f));
             scanner.setCommentsIgnored(true);
@@ -58,7 +65,7 @@ public class MonarchDB {
                             warn("Illegal object in " + tag + ": " + scanner.lastStr(), scanner.getLine(), scanner.getColumn());
                             break;
                         }
-                        Monarch m = new Monarch(scanner);
+                        Monarch m = new Monarch(scanner, tag);
                         if (allMonarchs.get(m.id) != null) {
                             System.out.println("Monarch ID conflict: " + m.name + " and " + allMonarchs.get(m.id) + " both have ID " + m.id);
                         }
@@ -119,6 +126,7 @@ public class MonarchDB {
     
     private static class Monarch {
         private int id;
+        private String tag;
         private String name;
         private GregorianCalendar startdate;
         private GregorianCalendar deathdate;
@@ -133,7 +141,8 @@ public class MonarchDB {
         
         private static final Pattern SPACE = Pattern.compile(" ");
         
-        private Monarch(EUGScanner scanner) {
+        private Monarch(EUGScanner scanner, String tag) {
+            this.tag = tag;
             if (scanner.nextToken() != TokenType.LBRACE) {
                 warn("No '{' after \"monarch =\"", scanner.getLine(), scanner.getColumn());
             }

@@ -11,6 +11,9 @@ import eug.parser.TokenType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,16 +25,11 @@ import java.util.regex.Pattern;
  */
 public class LeaderDB {
 
-    private static final Map<Integer, Leader> allLeaders =
-            new HashMap<Integer, Leader>(5000);
-    
-//    private static final Map<String, Map<Integer, Monarch>> byCountry =
-//            new HashMap<String, Map<Integer, Monarch>>(200);
+    private static final Map<Integer, Leader> allLeaders = new HashMap<>(5000);
     
     public static void init(String directory) {
         System.out.println("Parsing leaders from " + directory);
         for (File f : Main.resolver.listFiles(directory)) {
-            //String tag = f.getPath().substring(f.getPath().lastIndexOf('.') + 1);
             String tag = f.getPath().substring(f.getPath().lastIndexOf('_') + 1, f.getPath().lastIndexOf('.'));
             if (Text.getText(tag).equalsIgnoreCase(tag)) {
                 continue;   // not a country tag
@@ -39,11 +37,17 @@ public class LeaderDB {
             
             parse(f, tag);
         }
+        try {
+            Files.write(Paths.get("leaders.txt"), (Iterable<String>)allLeaders.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().category + "\t" + e.getValue().name.replace("&nbsp;", " "); })
+                    .map(String::valueOf)::iterator);
+        } catch (IOException ex) {
+        }
         System.out.println("Finished leaders");
     }
 
     private static void parse(File f, String tag) {
-//        System.out.println(f);
         try {
             EUGScanner scanner = new EUGScanner(new FileReader(f));
             scanner.setCommentsIgnored(true);
@@ -56,7 +60,7 @@ public class LeaderDB {
                             warn("Illegal object in " + tag + ": " + scanner.lastStr(), scanner.getLine(), scanner.getColumn());
                             break;
                         }
-                        Leader l = new Leader(scanner);
+                        Leader l = new Leader(scanner, tag);
                         if (allLeaders.get(l.id) != null) {
                             System.out.println("Leader ID conflict: " + l.name + " and " + allLeaders.get(l.id) + " both have ID " + l.id);
                         }
@@ -122,6 +126,7 @@ public class LeaderDB {
     
     private static class Leader {
         private int id;
+        private String tag;
         private String category;
         private String name;
         private GregorianCalendar startdate;
@@ -136,7 +141,8 @@ public class LeaderDB {
         
         private static final Pattern SPACE = Pattern.compile(" ");
         
-        private Leader(EUGScanner scanner) {
+        private Leader(EUGScanner scanner, String tag) {
+            this.tag = tag;
             if (scanner.nextToken() != TokenType.LBRACE) {
                 warn("No '{' after \"leader =\"", scanner.getLine(), scanner.getColumn());
             }
