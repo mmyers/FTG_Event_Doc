@@ -89,12 +89,16 @@ class EventDB {
             currentFile.add(eventOrDec);
             if (eventOrDec instanceof Event) {
                 Event event = (Event) eventOrDec;
+                if (allEvents.containsKey(event.getId()))
+                    System.out.println("Event ID collision: " + event.getId() + " already exists in " + eventsInFiles.get(event.getId()));
                 allEvents.put(event.getId(), event);
                 eventNames.put(event.getId(), event.getName());
                 eventDescs.put(event.getId(), event.getDesc());
                 eventsInFiles.put(event.getId(), file.getName());
             } else if (eventOrDec instanceof Decision) {
                 Decision dec = (Decision) eventOrDec;
+                if (allDecisions.containsKey(dec.getId()))
+                    System.out.println("Decision ID collision: " + dec.getId() + " already exists in " + decisionsInFiles.get(dec.getId()));
                 allDecisions.put(dec.getId(), dec);
                 decisionNames.put(dec.getId(), dec.getName());
                 decisionDescs.put(dec.getId(), dec.getDesc());
