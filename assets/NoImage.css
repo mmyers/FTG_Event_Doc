@@ -172,3 +172,24 @@ hr {
 .date {
 	color: lightskyblue;
 }
+
+.table-wrapper {
+	height: 60em;
+	overflow-y: scroll;
+}
+
+th {
+	cursor: pointer;
+	top: 0;
+	z-index: 2;
+	position: sticky;
+	background-color: #030E13; /* same as .index */
+}
+
+td {
+	text-align: center;
+}
+
+table tr:hover td {
+	background-color: #062938; /* same as .body */
+}

@@ -435,7 +435,7 @@ class ReligionTrigger extends StringTrigger {
 
     @Override
     public void generateHTML(BufferedWriter out) throws IOException {
-        out.write("State religion is " + value);
+        out.write("State religion is " + Text.getText("religion_" + value));
     }
 }
 
@@ -648,7 +648,7 @@ class ProvinceReligionTrigger extends ProvinceTrigger {
 
     @Override
     public void generateHTML(BufferedWriter out) throws IOException {
-        out.write(ProvinceDB.format(province) + " has religion " + Text.getText(data));
+        out.write(ProvinceDB.format(province) + " has religion " + Text.getText("religion_" + data));
     }
 }
 

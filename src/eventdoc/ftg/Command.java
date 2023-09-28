@@ -918,7 +918,7 @@ public class Command {
 //            if (value.equals("-1"))
 //                out.write("Religion in " + getProv() + " changes to the state religion");
 //            else
-                out.write("Religion in " + getProv() + " changes to " + Text.getText(value));
+                out.write("Religion in " + getProv() + " changes to " + Text.getText("religion_" + value));
         }
     }
     
@@ -1107,7 +1107,7 @@ public class Command {
         }
         
         protected final String getCountry() {
-            return EventDB.formatCountry(which);
+            return getCountry(which);
         }
     }
     
@@ -1243,7 +1243,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Change religion to " + Text.getText(which));
+            out.write("Change religion to " + Text.getText("religion_" + which));
         }
     }
     

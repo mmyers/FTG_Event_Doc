@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +68,7 @@ public class MonarchDB {
                         }
                         Monarch m = new Monarch(scanner, tag);
                         if (allMonarchs.get(m.id) != null) {
-                            System.out.println("Monarch ID conflict: " + m.name + " and " + allMonarchs.get(m.id) + " both have ID " + m.id);
+                            System.out.println("Monarch ID conflict: " + m.name + " and " + allMonarchs.get(m.id).name + " both have ID " + m.id);
                         }
                         allMonarchs.put(m.id, m);
                         break;
@@ -122,6 +123,56 @@ public class MonarchDB {
     
     static boolean isDormant(int monarchId) {
         return allMonarchs.get(monarchId) != null && allMonarchs.get(monarchId).dormant;
+    }
+    
+    public static String getTableHtml() {
+        StringBuilder sb = new StringBuilder(allMonarchs.size() * 50);
+        sb.append("<div class=\"table-wrapper\">\n");
+        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Start</th><th>End</th><th>DIP</th><th>ADM</th><th>MIL</th><th>Total</th><th>Dormant</th><th>May be emperor</th><th>May have royal marriages</th><th>Union</th><th>Remark</th></tr>\n");
+        
+        allMonarchs.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> {
+            sb.append("<tr>");
+            appendTD(sb, e.getKey());
+            Monarch m = e.getValue();
+            appendTD(sb, m.name);
+            appendTD(sb, EventDB.formatCountry(m.tag));
+            appendTD(sb, m.startdate == null ? "(none)" : m.startdate.get(Calendar.YEAR));
+            appendTD(sb, m.deathdate == null ? "(none)" : m.deathdate.get(Calendar.YEAR));
+            appendTD(sb, m.DIP);
+            appendTD(sb, m.ADM);
+            appendTD(sb, m.MIL);
+            appendTD(sb, m.DIP+m.ADM+m.MIL);
+            appendTD(sb, m.dormant ? "Yes" : "");
+            appendTD(sb, m.emperor ? "" : "No");
+            appendTD(sb, m.dynastic ? "" : "No");
+            if (m.unions != null) {
+                Union u = m.unions.get(0);
+                String union;
+                if (u.primary == m.id) {
+                    Monarch other = allMonarchs.get(u.secondary);
+                    union = "Leads union with " + other.name + " (" + EventDB.formatCountry(other.tag) + ")";
+                } else {
+                    Monarch other = allMonarchs.get(u.primary);
+                    union = "Junior in union with " + other.name + " (" + EventDB.formatCountry(other.tag) + ")";
+                }
+                if (m.unions.size() > 1)
+                    union += " (+" + (m.unions.size() -1) + ")";
+                
+                appendTD(sb, union);
+            } else {
+                appendTD(sb, "");
+            }
+            appendTD(sb, m.remark == null ? "" : m.remark);
+            sb.append("</tr>\n");
+        });
+        
+        sb.append("</table>\n");
+        sb.append("</div>\n<br>");
+        sb.append(allMonarchs.size()).append(" total monarchs\n");
+        return sb.toString();
+    }
+    private static void appendTD(StringBuilder sb, Object value) {
+        sb.append("<td>").append(value).append("</td>");
     }
     
     private static class Monarch {

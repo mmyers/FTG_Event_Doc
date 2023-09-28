@@ -14,6 +14,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,7 +63,7 @@ public class LeaderDB {
                         }
                         Leader l = new Leader(scanner, tag);
                         if (allLeaders.get(l.id) != null) {
-                            System.out.println("Leader ID conflict: " + l.name + " and " + allLeaders.get(l.id) + " both have ID " + l.id);
+                            System.out.println("Leader ID conflict: " + l.name + " and " + allLeaders.get(l.id).name + " both have ID " + l.id);
                         }
                         allLeaders.put(l.id, l);
                         break;
@@ -109,7 +110,7 @@ public class LeaderDB {
         ret.append(",&nbsp;movement:&nbsp;").append(l.movement);
         ret.append(",&nbsp;fire:&nbsp;").append(l.fire);
         ret.append(",&nbsp;shock:&nbsp;").append(l.shock);
-        if (l.siege != Integer.MIN_VALUE)
+        if (l.siege > 0)
             ret.append(",&nbsp;siege:&nbsp;").append(l.siege);
         if (l.dormant)
             ret.append("&nbsp;(dormant)");
@@ -124,6 +125,42 @@ public class LeaderDB {
         return allLeaders.get(leaderId) != null && allLeaders.get(leaderId).dormant;
     }
     
+    public static String getTableHtml() {
+        StringBuilder sb = new StringBuilder(allLeaders.size() * 50);
+        sb.append("<div class=\"table-wrapper\">\n");
+        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Category</th><th>Rank</th><th>Start</th><th>End</th><th>Movement</th><th>Fire</th><th>Shock</th><th>Siege</th><th>Total</th><th>Total without siege</th><th>Dormant</th><th>Location</th><th>Remark</th></tr>\n");
+        
+        allLeaders.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> {
+            sb.append("<tr>");
+            appendTD(sb, e.getKey());
+            Leader l = e.getValue();
+            appendTD(sb, l.name);
+            appendTD(sb, EventDB.formatCountry(l.tag));
+            appendTD(sb, l.category);
+            appendTD(sb, l.rank);
+            appendTD(sb, l.startdate == null ? "(none)" : l.startdate.get(Calendar.YEAR));
+            appendTD(sb, l.deathdate == null ? "(none)" : l.deathdate.get(Calendar.YEAR));
+            appendTD(sb, l.movement);
+            appendTD(sb, l.fire);
+            appendTD(sb, l.shock);
+            appendTD(sb, l.siege);
+            appendTD(sb, l.movement + l.fire + l.shock + l.siege);
+            appendTD(sb, l.movement + l.fire + l.shock);
+            appendTD(sb, l.dormant ? "Yes" : "");
+            appendTD(sb, l.location > 0 ? ProvinceDB.format(l.location) : "");
+            appendTD(sb, l.remark == null ? "" : l.remark);
+            sb.append("</tr>\n");
+        });
+        
+        sb.append("</table>\n");
+        sb.append("</div>\n<br>");
+        sb.append(allLeaders.size()).append(" total leaders\n");
+        return sb.toString();
+    }
+    private static void appendTD(StringBuilder sb, Object value) {
+        sb.append("<td>").append(value).append("</td>");
+    }
+    
     private static class Leader {
         private int id;
         private String tag;
@@ -135,8 +172,9 @@ public class LeaderDB {
         private int movement;
         private int fire;
         private int shock;
-        private int siege = Integer.MIN_VALUE;
+        private int siege = 0;
         private boolean dormant;
+        private int location = -1;
         private String remark;  // not used
         
         private static final Pattern SPACE = Pattern.compile(" ");
@@ -186,7 +224,8 @@ public class LeaderDB {
                             scanner.nextToken();
                             remark = scanner.lastStr();
                         } else if (ident.equals("location")) {
-                            scanner.nextToken();    // skip
+                            scanner.nextToken();
+                            location = Integer.parseInt(scanner.lastStr());
                         } else if (ident.equals("special")) {
                             scanner.nextToken();    // skip
                         } else {

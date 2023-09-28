@@ -66,9 +66,9 @@ public class Main {
             printUsage();
             System.exit(0);
         }
-        if (language == null) {
-            language = "English";
-        }
+//        if (language == null) {
+//            language = "English";
+//        }
         
         if (outputDir == null) {
             outputDir = "." + File.separator;
@@ -92,7 +92,9 @@ public class Main {
             EventDB.setBetweenEvents(readFile("betweenevents.htm"));
         }
 
-        Text.loadText("localisation", language);
+        Text.loadText();
+        //Text.setLanguage(language);
+        //Text.loadText("localisation", language);
         MonarchDB.init("db/monarchs");
         LeaderDB.init("db/leaders");
         ProvinceDB.init("db/map/provinces.txt");
