@@ -43,13 +43,13 @@ public class MonarchDB {
             
             parse(f, tag);
         }
-        try {
-            Files.write(Paths.get("monarchs.txt"), (Iterable<String>)allMonarchs.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().name.replace("&nbsp;", " "); })
-                    .map(String::valueOf)::iterator);
-        } catch (IOException ex) {
-        }
+//        try {
+//            Files.write(Paths.get("monarchs.txt"), (Iterable<String>)allMonarchs.entrySet().stream()
+//                    .sorted(Map.Entry.comparingByKey())
+//                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().name.replace("&nbsp;", " "); })
+//                    .map(String::valueOf)::iterator);
+//        } catch (IOException ex) {
+//        }
         System.out.println("Finished monarchs");
     }
 

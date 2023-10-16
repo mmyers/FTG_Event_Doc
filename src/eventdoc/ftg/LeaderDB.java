@@ -38,13 +38,13 @@ public class LeaderDB {
             
             parse(f, tag);
         }
-        try {
-            Files.write(Paths.get("leaders.txt"), (Iterable<String>)allLeaders.entrySet().stream()
-                    .sorted(Map.Entry.comparingByKey())
-                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().category + "\t" + e.getValue().name.replace("&nbsp;", " "); })
-                    .map(String::valueOf)::iterator);
-        } catch (IOException ex) {
-        }
+//        try {
+//            Files.write(Paths.get("leaders.txt"), (Iterable<String>)allLeaders.entrySet().stream()
+//                    .sorted(Map.Entry.comparingByKey())
+//                    .map(e -> { return e.getKey() + "\t" + e.getValue().tag.toUpperCase() + "\t" + e.getValue().category + "\t" + e.getValue().name.replace("&nbsp;", " "); })
+//                    .map(String::valueOf)::iterator);
+//        } catch (IOException ex) {
+//        }
         System.out.println("Finished leaders");
     }
 

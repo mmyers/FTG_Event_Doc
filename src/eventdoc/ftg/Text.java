@@ -132,8 +132,8 @@ final class Text {
             return "null";
         
         final String ret = englishText.get(key.toLowerCase());
-        if (ret == null && !key.isEmpty() && !key.equals("AI_EVENT"))
-            System.out.println("No text found for key " + key);
+        //if (ret == null && !key.isEmpty() && !key.equals("AI_EVENT"))
+        //    System.out.println("No text found for key " + key);
         return (ret != null ? ret : key);
     }
     
