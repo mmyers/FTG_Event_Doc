@@ -1002,7 +1002,7 @@ class DiscoveredTrigger extends IntTrigger {
 
     @Override
     public void generateHTML(BufferedWriter out) throws IOException {
-        out.write(ProvinceDB.format(value) + " has been discovered by Europeans");
+        out.write("Has discovered " + ProvinceDB.format(value));
     }
 }
 
