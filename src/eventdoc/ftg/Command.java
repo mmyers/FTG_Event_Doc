@@ -266,6 +266,8 @@ public class Command {
             commandType = new AiSetCommand(scanner);
         } else if (command.equals("free")) {
             commandType = new FreeCommand(scanner);
+        } else if (command.equals("disbandrebels")) {
+            commandType = new DisbandRebelsCommand(scanner);
         } else {
             warn("Unknown command type: " + command, scanner.getLine(), scanner.getColumn());
             while (scanner.nextToken() != TokenType.RBRACE) { }
@@ -449,80 +451,81 @@ public class Command {
         }
         
         
+        /** Resolve the given int target, which may be either a province ID or a random set */
         protected String getProv(int which) {
-            if (which < 0) {
-                switch (which) {
-                    case -1:
-                        if (getWhere() != null)
-                            return "a random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "a random province";
-                    case -2:
-                        return "the capital province";
-                    case -3:
-                        return "the same province";
-                    case -4:
-                        if (getWhere() != null)
-                            return "a different random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "a different random province";
-                    case -5:
-                        if (getWhere() != null)
-                            return "a random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "a random non-capital province";
-                    case -6:
-                    case -7:
-                    case -9:
-                    case -10:
-                        System.out.println("Cannot use " + which + " for province in commands");
-                        return which + " (error)";
-                    case -8:
-                        if (getWhere() != null)
-                            return "a different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "a different non-capital province";
-                    default:
-                        int id = (-which) - 1000;
-                        return "a random province in " + Text.getText(GeographyDB.getName(id));
-                }
-            } else {
+            // If 0 or above, it's just a province
+            if (which >= 0) {
                 return ProvinceDB.format(which);
+            }
+            
+            switch (which) {
+                case -1:
+                    if (getWhere() != null)
+                        return "a random province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "a random province";
+                case -2:
+                    return "the capital province";
+                case -3:
+                    return "the same province";
+                case -4:
+                    if (getWhere() != null)
+                        return "a different random province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "a different random province";
+                case -5:
+                    if (getWhere() != null)
+                        return "a random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "a random non-capital province";
+                case -6:
+                case -7:
+                case -9:
+                case -10:
+                    System.out.println("Cannot use " + which + " for province in commands");
+                    return which + " (error)";
+                case -8:
+                    if (getWhere() != null)
+                        return "a different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "a different non-capital province";
+                default:
+                    int id = (-which) - 1000;
+                    return "a random province in " + Text.getText(GeographyDB.getName(id));
             }
         }
 
-        // same as getProv(), only capitalized
+        /** Same as getProv(), only capitalized */
         protected String getProvCap(int which) {
-            if (which < 0) {
-                switch (which) {
-                    case -1:
-                        if (getWhere() != null)
-                            return "A random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "A random province";
-                    case -2:
-                        return "The capital province";
-                    case -3:
-                        return "The same province";
-                    case -4:
-                        if (getWhere() != null)
-                            return "A different random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "A different random province";
-                    case -5:
-                        if (getWhere() != null)
-                            return "A random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "A random non-capital province";
-                    case -6:
-                    case -7:
-                    case -9:
-                    case -10:
-                        System.out.println("Cannot use " + which + " for province in commands");
-                        return which + " (error)";
-                    case -8:
-                        if (getWhere() != null)
-                            return "A different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                        return "A different non-capital province";
-                    default:
-                        int id = (-which) - 1000;
-                        return "A random province in " + Text.getText(GeographyDB.getName(id));
-                }
-            } else {
+            if (which >= 0) {
                 return ProvinceDB.format(which);
+            }
+            switch (which) {
+                case -1:
+                    if (getWhere() != null)
+                        return "A random province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "A random province";
+                case -2:
+                    return "The capital province";
+                case -3:
+                    return "The same province";
+                case -4:
+                    if (getWhere() != null)
+                        return "A different random province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "A different random province";
+                case -5:
+                    if (getWhere() != null)
+                        return "A random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "A random non-capital province";
+                case -6:
+                case -7:
+                case -9:
+                case -10:
+                    System.out.println("Cannot use " + which + " for province in commands");
+                    return which + " (error)";
+                case -8:
+                    if (getWhere() != null)
+                        return "A different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
+                    return "A different non-capital province";
+                default:
+                    int id = (-which) - 1000;
+                    return "A random province in " + Text.getText(GeographyDB.getName(id));
             }
         }
 
@@ -563,6 +566,7 @@ public class Command {
         }
     }
     
+    /** A command that targets a province with "which = xxx" */
     private static abstract class ProvinceCommand extends IntCommand {
         ProvinceCommand(EUGScanner scanner) {
             super(scanner);
@@ -1851,7 +1855,10 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Give control of " + getProv() + " to " + Text.getText(value));
+            String country = Text.getText(value);
+            if (country.equals("-1"))
+                country = "this country";
+            out.write("Give control of " + getProv() + " to " + country);
         }
     }
 
@@ -2119,6 +2126,17 @@ public class Command {
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
             out.write("Grant independence to " + getCountry());
+        }
+    }
+    
+    private static class DisbandRebelsCommand extends ProvinceCommand {
+        DisbandRebelsCommand(EUGScanner scanner) {
+            super(scanner);
+        }
+
+        @Override
+        protected void generateHTML(BufferedWriter out) throws IOException {
+            out.write("Disband all rebels in " + getProv());
         }
     }
 }
