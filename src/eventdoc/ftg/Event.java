@@ -21,6 +21,7 @@ public class Event implements HtmlObject {
     private boolean global; // FTG
     private boolean hidden; // FTG
     private boolean persistent; // FTG
+    private int randomWeight; // FTG
     private int totalChance = -1; // total of all ai_chances of actions
     private String tag = null;
     private int province = -1;
@@ -89,6 +90,9 @@ public class Event implements HtmlObject {
                             totalChance += act.getAIChance();
                     } else if (ident.equals("style")) {
                         scanner.nextToken();    // ignore
+                    } else if (ident.equals("weight")) {
+                        scanner.nextToken();
+                        randomWeight = Integer.parseInt(scanner.lastStr());
                     } else {
                         warn("Unknown variable in event: " + scanner.lastStr(), scanner.getLine(), scanner.getColumn());
                     }
@@ -156,7 +160,10 @@ public class Event implements HtmlObject {
             out.write("All countries");
         }
         out.write(" &mdash; ");
-        out.write(random ? "Random</h3>" : "Not random</h3>");
+        out.write(random ? "Random" : "Not random");
+        if (random && randomWeight > 1)
+            out.write(" (weight " + randomWeight + ")");
+        out.write("</h3>");
         out.newLine();
         if (global) {
             out.write("<h3>Shown to all players</h3>");
