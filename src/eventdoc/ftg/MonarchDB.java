@@ -125,6 +125,10 @@ public class MonarchDB {
         return allMonarchs.get(monarchId) != null && allMonarchs.get(monarchId).dormant;
     }
     
+    static Monarch getMonarch(int monarchId) {
+        return allMonarchs.get(monarchId);
+    }
+    
     public static String getTableHtml() {
         StringBuilder sb = new StringBuilder(allMonarchs.size() * 50);
         sb.append("<div class=\"table-wrapper\">\n");
@@ -175,10 +179,10 @@ public class MonarchDB {
         sb.append("<td>").append(value).append("</td>");
     }
     
-    private static class Monarch {
+    static class Monarch {
         private int id;
-        private String tag;
-        private String name;
+        String tag;
+        String name;
         private GregorianCalendar startdate;
         private GregorianCalendar deathdate;
         private int DIP;

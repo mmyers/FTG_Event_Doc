@@ -83,6 +83,19 @@ public class LeaderDB {
         System.out.println(msg);
     }
     
+    public static void checkForMonarchOverlap() {
+        for (Map.Entry<Integer, Leader> entry : allLeaders.entrySet()) {
+            int leaderId = entry.getKey();
+            MonarchDB.Monarch m = MonarchDB.getMonarch(leaderId);
+            if (m != null) {
+                Leader l = entry.getValue();
+                String leaderName = l.name.replace("&nbsp;", " ");
+                String monarchName = m.name.replace("&nbsp;", " ");
+                System.out.println("Leader/monarch ID conflict: leader " + leaderName + " (" + l.tag.toUpperCase() + ") and " + monarchName + " (" + m.tag.toUpperCase() + ") both have ID " + leaderId);
+            }
+        }
+    }
+    
     /**
      * Returns an HTML string representing the given leader.
      * <p>

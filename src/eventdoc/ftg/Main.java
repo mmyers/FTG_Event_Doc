@@ -97,6 +97,7 @@ public class Main {
         //Text.loadText("localisation", language);
         MonarchDB.init("db/monarchs");
         LeaderDB.init("db/leaders");
+        LeaderDB.checkForMonarchOverlap();
         ProvinceDB.init("db/map/provinces.txt");
         GeographyDB.init("db/map/geography.txt");
         
