@@ -109,6 +109,12 @@ public class Command {
             commandType = new ConquistadorCommand(scanner);
         } else if (command.equals("explorer")) {
             commandType = new ExplorerCommand(scanner);
+        } else if (command.equals("general")) {
+            commandType = new GeneralCommand(scanner);
+        } else if (command.equals("admiral")) {
+            commandType = new AdmiralCommand(scanner);
+        } else if (command.equals("privateer")) {
+            commandType = new PrivateerCommand(scanner);
         } else if (command.equals("relation")) {
             commandType = new RelationCommand(scanner);
         } else if (command.equals("desertion")) {
@@ -651,7 +657,12 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Gain a conquistador in " + getProv());
+            String values = "";
+            if (getValue() != null) {
+                int maxValue = Integer.parseInt(getValue());
+                values = " with maximum stats " + maxValue + "/" + maxValue + "/" + maxValue + "/" + (maxValue/2);
+            }
+            out.write("Gain a conquistador in " + getProv() + values);
         }
     }
     
@@ -662,7 +673,60 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Gain an explorer in " + getProv());
+            String values = "";
+            if (getValue() != null) {
+                int maxValue = Integer.parseInt(getValue());
+                values = " with maximum stats " + maxValue + "/" + maxValue + "/" + maxValue;
+            }
+            out.write("Gain an explorer in " + getProv() + values);
+        }
+    }
+    
+    private static class GeneralCommand extends ProvinceCommand {
+        GeneralCommand(EUGScanner scanner) {
+            super(scanner);
+        }
+
+        @Override
+        protected void generateHTML(BufferedWriter out) throws IOException {
+            String values = "";
+            if (getValue() != null) {
+                int maxValue = Integer.parseInt(getValue());
+                values = " with maximum stats " + maxValue + "/" + maxValue + "/" + maxValue + "/" + (maxValue/2);
+            }
+            out.write("Gain a general in " + getProv() + values);
+        }
+    }
+    
+    private static class AdmiralCommand extends ProvinceCommand {
+        AdmiralCommand(EUGScanner scanner) {
+            super(scanner);
+        }
+
+        @Override
+        protected void generateHTML(BufferedWriter out) throws IOException {
+            String values = "";
+            if (getValue() != null) {
+                int maxValue = Integer.parseInt(getValue());
+                values = " with maximum stats " + maxValue + "/" + maxValue + "/" + maxValue;
+            }
+            out.write("Gain an admiral in " + getProv() + values);
+        }
+    }
+    
+    private static class PrivateerCommand extends ProvinceCommand {
+        PrivateerCommand(EUGScanner scanner) {
+            super(scanner);
+        }
+
+        @Override
+        protected void generateHTML(BufferedWriter out) throws IOException {
+            String values = "";
+            if (getValue() != null) {
+                int maxValue = Integer.parseInt(getValue());
+                values = " with maximum stats " + maxValue + "/" + maxValue + "/" + maxValue;
+            }
+            out.write("Gain a privateer in " + getProv() + values);
         }
     }
     
