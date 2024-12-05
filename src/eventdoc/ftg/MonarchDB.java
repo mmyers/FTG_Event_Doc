@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class MonarchDB {
     
-    private static final Map<Integer, Monarch> allMonarchs = new HashMap<>(5000);
+    static final Map<Integer, Monarch> allMonarchs = new HashMap<>(5000);
     
 //    private static final Map<String, Map<Integer, Monarch>> byCountry =
 //            new HashMap<String, Map<Integer, Monarch>>(200);

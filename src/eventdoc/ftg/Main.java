@@ -98,6 +98,7 @@ public class Main {
         MonarchDB.init("db/monarchs");
         LeaderDB.init("db/leaders");
         LeaderDB.checkForMonarchOverlap();
+        LeaderDB.dumpLeaderMonarchIdRanges();
         ProvinceDB.init("db/map/provinces.txt");
         GeographyDB.init("db/map/geography.txt");
         

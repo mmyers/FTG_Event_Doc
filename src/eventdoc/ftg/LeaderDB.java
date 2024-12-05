@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +85,7 @@ public class LeaderDB {
     }
     
     public static void checkForMonarchOverlap() {
+        System.out.println("Checking for leader/monarch ID collisions...");
         for (Map.Entry<Integer, Leader> entry : allLeaders.entrySet()) {
             int leaderId = entry.getKey();
             MonarchDB.Monarch m = MonarchDB.getMonarch(leaderId);
@@ -94,6 +96,37 @@ public class LeaderDB {
                 System.out.println("Leader/monarch ID conflict: leader " + leaderName + " (" + l.tag.toUpperCase() + ") and " + monarchName + " (" + m.tag.toUpperCase() + ") both have ID " + leaderId);
             }
         }
+        System.out.println("Done");
+    }
+    
+    public static void dumpLeaderMonarchIdRanges() {
+        System.out.println("Generating leader/monarch ID ranges...");
+        java.util.Set<Integer> allIds = new java.util.HashSet<>(allLeaders.keySet());
+        allIds.addAll(MonarchDB.allMonarchs.keySet());
+        java.util.List<Integer> idsInOrder = new java.util.ArrayList<>(allIds);
+        Collections.sort(idsInOrder);
+        System.out.println(idsInOrder.size() + " total IDs used");
+        
+        int last = 0;
+        int lastFree = 0;
+        
+        for (int i : idsInOrder) {
+            if (last == 0) {
+                lastFree = i - 1;
+                last = i;
+            } else if (i == (last+1)) { // in sequence
+                last = i;
+            } else {
+                // Not in sequence. We've finished an ID range, and we also know a range of free IDs
+                System.out.println("Used IDs: " + (lastFree+1) + " - " + last + " (" + (last - lastFree) + " IDs)");
+                System.out.println((i - last - 1) + " free IDs");
+                lastFree = i - 1;
+                last = i;
+            }
+        }
+        System.out.println("Used IDs: " + (lastFree+1) + " - " + last + " (" + (last - lastFree) + " IDs)");
+        System.out.println("Free IDs: " + (last+1) + " and up");
+        System.out.println("Done");
     }
     
     /**
