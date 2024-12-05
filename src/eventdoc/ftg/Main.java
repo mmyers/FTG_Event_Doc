@@ -37,6 +37,8 @@ public class Main {
     static boolean checkLeaders = true;
     static boolean checkMonarchs = false;
     
+    static boolean onlyCheckIDs = false;
+    
     static FilenameResolver resolver;
 
     /**
@@ -113,6 +115,12 @@ public class Main {
         if (title != null) {
             EventDB.setTitle(title);
         }
+        
+        
+        // Stop here if we're only running checks
+        if (onlyCheckIDs)
+            return;
+        
         
         EventDB.generateHTML(outputDir);
 
@@ -267,6 +275,8 @@ public class Main {
                 checkLeaders = false;
             } else if (equals(arg, "--no-monarch-check")) {
                 checkMonarchs = false;
+            } else if (equals(arg, "--only-check-ids")) {
+                onlyCheckIDs = true;
             } else {
                 System.err.println("Unknown argument: " + arg);
                 printUsage();
@@ -343,6 +353,8 @@ public class Main {
         System.out.println("        Indicates not to perform any checks of leader commands.");
         System.out.println("    --no-monarch-check");
         System.out.println("        Indicates not to perform any checks of monarch commands.");
+        System.out.println("    --only-check-ids");
+        System.out.println("        Don't generate any HTML files - only load the events, leaders, and monarchs, and check for ID errors.");
         System.out.println("    -h, --help");
         System.out.println("        Prints this help.");
     }
