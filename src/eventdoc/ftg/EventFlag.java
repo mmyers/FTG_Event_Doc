@@ -1,7 +1,10 @@
 package eventdoc.ftg;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,6 +33,15 @@ public class EventFlag {
                 System.out.println(f.flagName + " not set");
             if (f.triggerIf.isEmpty()) // && f.triggerNotIf.isEmpty())
                 System.out.println(f.flagName + " not checked");
+        }
+        
+        List<String> orderedKeys = new ArrayList<>(database.keySet());
+        Collections.sort(orderedKeys);
+        
+        System.out.format("%30s %10s %10s %10s%n", "Flag name", "# sets", "# clears", "# triggers");
+        for (String k : orderedKeys) {
+            EventFlag f = database.get(k);
+            System.out.format("%30s %10d %10d %10d%n", f.flagName, f.sets.size(), f.clears.size(), f.triggerIf.size());
         }
     }
     /// end static ///
