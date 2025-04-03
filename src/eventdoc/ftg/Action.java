@@ -23,9 +23,11 @@ class Action implements HtmlObject {
     private int aiChance = -1;
     private Trigger trigger;
     private List<Command> commands;
+    private EventDecision parent;
 
-    Action(EUGScanner scanner) {
-        commands = new ArrayList<Command>();
+    Action(EUGScanner scanner, EventDecision parent) {
+        this.parent = parent;
+        commands = new ArrayList<>();
 
         if (scanner.nextToken() != TokenType.LBRACE) {
             warn("Expected '{'", scanner.getLine(), scanner.getColumn());
@@ -40,12 +42,12 @@ class Action implements HtmlObject {
                         scanner.nextToken();
                         name = scanner.lastStr();
                     } else if (ident.equals("command")) {
-                        commands.add(new Command(scanner));
+                        commands.add(new Command(scanner, this));
                     } else if (ident.equals("ai_chance")) {
                         scanner.nextToken();
                         aiChance = Integer.parseInt(scanner.lastStr());
                     } else if (ident.equals("trigger")) {
-                        trigger = Trigger.parseTrigger(scanner);
+                        trigger = Trigger.parseTrigger(scanner, parent);
                     }
                     break;
                 case RBRACE:
@@ -63,6 +65,10 @@ class Action implements HtmlObject {
 
     int getAIChance() {
         return aiChance;
+    }
+    
+    EventDecision getParent() {
+        return parent;
     }
     
     @Override

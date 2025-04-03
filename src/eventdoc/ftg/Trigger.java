@@ -18,9 +18,11 @@ import java.util.List;
  * @author Michael
  */
 public abstract class Trigger implements HtmlObject {
+    
+    protected EventDecision parent;
 
-    static Trigger parseTrigger(EUGScanner scanner) {
-        return new MainTrigger(scanner);
+    static Trigger parseTrigger(EUGScanner scanner, EventDecision parent) {
+        return new MainTrigger(scanner, parent);
     }
 
     protected static void warn(String msg, int line, int column) {
@@ -42,12 +44,14 @@ abstract class CombinedTrigger extends Trigger {
 
     protected CombinedTrigger() {
         // any class using this constructor must be sure to call init at some point
+        // currently only SomeOfTrigger uses it
     }
-    protected CombinedTrigger(EUGScanner scanner) {
+    protected CombinedTrigger(EUGScanner scanner, EventDecision parent) {
+        this.parent = parent;
         init(scanner, true);
     }
-    protected void init(EUGScanner scanner, boolean needsBrace) {
-        triggers = new ArrayList<Trigger>();
+    protected final void init(EUGScanner scanner, boolean needsBrace) {
+        triggers = new ArrayList<>();
 
         if (needsBrace) {
             if (scanner.nextToken() != TokenType.LBRACE) {
@@ -61,11 +65,11 @@ abstract class CombinedTrigger extends Trigger {
                 case IDENT:
                     String ident = scanner.lastStr().toLowerCase();
                     if (ident.equals("and")) {
-                        triggers.add(new AndTrigger(scanner));
+                        triggers.add(new AndTrigger(scanner, parent));
                     } else if (ident.equals("or")) {
-                        triggers.add(new OrTrigger(scanner));
+                        triggers.add(new OrTrigger(scanner, parent));
                     } else if (ident.equals("not")) {
-                        triggers.add(new NotTrigger(scanner));
+                        triggers.add(new NotTrigger(scanner, parent));
                     } else if (ident.equals("religion")) {
                         triggers.add(new ReligionTrigger(scanner));
                     } else if (ident.equals("leader")) {
@@ -120,12 +124,12 @@ abstract class CombinedTrigger extends Trigger {
                     } else if (ident.equals("ai")) {
                         triggers.add(new AITrigger(scanner));
                     } else if (ident.equals("flag")) {
-                        triggers.add(new FlagTrigger(scanner));
+                        triggers.add(new FlagTrigger(scanner, parent));
                     } else if (ident.equals("emperor")) {
                         scanner.nextToken();
                         scanner.pushBack();
                         if (scanner.lastToken() == TokenType.LBRACE)
-                            triggers.add(new OtherCountryTrigger(scanner, "the Holy Roman Emperor"));
+                            triggers.add(new OtherCountryTrigger(scanner, parent, "the Holy Roman Emperor"));
                         else
                             triggers.add(new EmperorTrigger(scanner));
                     } else if (ident.equals("elector")) {
@@ -167,7 +171,7 @@ abstract class CombinedTrigger extends Trigger {
                     } else if (ident.equals("ownerchange")) {
                         triggers.add(new OwnerChangeTrigger(scanner));
                     } else if (ident.equals("someof")) {
-                        triggers.add(new SomeOfTrigger(scanner));
+                        triggers.add(new SomeOfTrigger(scanner, parent));
                     } else if (ident.equals("inflation")) {
                         triggers.add(new InflationTrigger(scanner));
                     } else if (ident.equals("treasury")) {
@@ -253,7 +257,7 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new NumOfBuildingsTrigger(scanner));
                     } else if (ident.length() == 3) {
                         // assume it's a country trigger
-                        triggers.add(new OtherCountryTrigger(scanner));
+                        triggers.add(new OtherCountryTrigger(scanner, parent, ident));
                     } else {
                         warn("Unknown trigger type: " + scanner.lastStr(),
                                 scanner.getLine(), scanner.getColumn());
@@ -298,8 +302,8 @@ abstract class CombinedTrigger extends Trigger {
 
 class MainTrigger extends CombinedTrigger {
     
-    MainTrigger(EUGScanner scanner) {
-        super(scanner);
+    MainTrigger(EUGScanner scanner, EventDecision parent) {
+        super(scanner, parent);
     }
 
     @Override
@@ -312,8 +316,8 @@ class MainTrigger extends CombinedTrigger {
 
 class AndTrigger extends CombinedTrigger {
 
-    AndTrigger(EUGScanner scanner) {
-        super(scanner);
+    AndTrigger(EUGScanner scanner, EventDecision parent) {
+        super(scanner, parent);
     }
 
     @Override
@@ -328,8 +332,8 @@ class AndTrigger extends CombinedTrigger {
 
 class OrTrigger extends CombinedTrigger {
 
-    OrTrigger(EUGScanner scanner) {
-        super(scanner);
+    OrTrigger(EUGScanner scanner, EventDecision parent) {
+        super(scanner, parent);
     }
 
     @Override
@@ -344,8 +348,8 @@ class OrTrigger extends CombinedTrigger {
 
 class NotTrigger extends CombinedTrigger {
 
-    NotTrigger(EUGScanner scanner) {
-        super(scanner);
+    NotTrigger(EUGScanner scanner, EventDecision parent) {
+        super(scanner, parent);
     }
 
     @Override
@@ -364,13 +368,9 @@ class NotTrigger extends CombinedTrigger {
 /** FTG */
 class OtherCountryTrigger extends CombinedTrigger {
     private String tag;
-    OtherCountryTrigger(EUGScanner scanner) {
-        super(scanner);
-        tag = scanner.lastStr();
-    }
 
-    OtherCountryTrigger(EUGScanner scanner, String country) {
-        super(scanner);
+    OtherCountryTrigger(EUGScanner scanner, EventDecision parent, String country) {
+        super(scanner, parent);
         tag = country;
     }
 
@@ -385,7 +385,7 @@ class OtherCountryTrigger extends CombinedTrigger {
 /** FTG */
 class SomeOfTrigger extends CombinedTrigger {
     private int number;
-    SomeOfTrigger(EUGScanner s) {
+    SomeOfTrigger(EUGScanner s, EventDecision parent) {
         if (s.nextToken() != TokenType.LBRACE) {
             warn("Missing '{' in trigger", s.getLine(), s.getColumn());
         }
@@ -400,6 +400,7 @@ class SomeOfTrigger extends CombinedTrigger {
             warn("someof trigger must begin with \"number = x\"; found \"" + s.lastStr() + "\"", s.getLine(), s.getColumn());
             s.nextToken();
         }
+        this.parent = parent;
         init(s, false);
     }
 
@@ -441,8 +442,9 @@ class ReligionTrigger extends StringTrigger {
 
 class FlagTrigger extends StringTrigger {
 
-    FlagTrigger(EUGScanner scanner) {
+    FlagTrigger(EUGScanner scanner, EventDecision parent) {
         super(scanner);
+        EventFlag.getFlag(value).addTriggerIf(parent);
     }
 
     @Override

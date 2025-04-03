@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  * @author Michael
  */
-public class Decision implements HtmlObject {
+public class Decision implements HtmlObject, EventDecision {
     
     private int id;
     private Trigger potential;
@@ -39,11 +39,11 @@ public class Decision implements HtmlObject {
                         scanner.nextToken();
                         id = Integer.parseInt(scanner.lastStr());
                     } else if (ident.equals("potential")) {
-                        potential = Trigger.parseTrigger(scanner);
+                        potential = Trigger.parseTrigger(scanner, this);
                     } else if (ident.equals("trigger")) {
-                        trigger = Trigger.parseTrigger(scanner);
+                        trigger = Trigger.parseTrigger(scanner, this);
                     } else if (ident.equals("ai_trigger")) {
-                        aiTrigger = Trigger.parseTrigger(scanner);
+                        aiTrigger = Trigger.parseTrigger(scanner, this);
                     } else if (ident.equals("major")) {
                         scanner.nextToken();
                         major = (scanner.lastStr().equalsIgnoreCase("yes"));
@@ -60,7 +60,7 @@ public class Decision implements HtmlObject {
                         scanner.nextToken();
                         desc = scanner.lastStr();
                     } else if (ident.equals("action")) {
-                        action = new Action(scanner);
+                        action = new Action(scanner, this);
                     } else {
                         warn("Unknown variable in decision: " + scanner.lastStr(), scanner.getLine(), scanner.getColumn());
                     }

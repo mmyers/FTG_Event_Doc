@@ -10,7 +10,7 @@ public class Command {
     private CommandType commandType;
     private Trigger trigger;
 
-    Command(EUGScanner scanner) {
+    Command(EUGScanner scanner, Action parent) {
         super();
         if (scanner.nextToken() != TokenType.LBRACE) {
             warn("Expected \'{\'", scanner.getLine(), scanner.getColumn());
@@ -21,7 +21,7 @@ public class Command {
             switch (scanner.nextToken()) {
                 case IDENT:
                     if (scanner.lastStr().equalsIgnoreCase("trigger")) {
-                        trigger = Trigger.parseTrigger(scanner);
+                        trigger = Trigger.parseTrigger(scanner, parent.getParent());
                     } else if (!scanner.lastStr().equalsIgnoreCase("type")) {
                         warn("Expected \"type =\"", scanner.getLine(), scanner.getColumn());
                     } else {
@@ -199,9 +199,9 @@ public class Command {
         } else if (command.equals("technology")) {
             commandType = new TechnologyCommand(scanner);
         } else if (command.equals("setflag")) {
-            commandType = new SetFlagCommand(scanner);
+            commandType = new SetFlagCommand(scanner, parent);
         } else if (command.equals("clrflag")) {
-            commandType = new ClrFlagCommand(scanner);
+            commandType = new ClrFlagCommand(scanner, parent);
         } else if (command.equals("gainmanufactory")) {
             commandType = new GainManufactoryCommand(scanner);
         } else if (command.equals("losemanufactory")) {
@@ -1327,8 +1327,9 @@ public class Command {
     }
     
     private static class SetFlagCommand extends StringCommand {
-        SetFlagCommand(EUGScanner scanner) {
+        SetFlagCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            EventFlag.getFlag(which).addSet(parent);
         }
 
         @Override
@@ -1341,8 +1342,9 @@ public class Command {
     }
     
     private static class ClrFlagCommand extends StringCommand {
-        ClrFlagCommand(EUGScanner scanner) {
+        ClrFlagCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            EventFlag.getFlag(which).addClear(parent);
         }
 
         @Override

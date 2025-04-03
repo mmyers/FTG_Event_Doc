@@ -116,6 +116,7 @@ public class Main {
             EventDB.setTitle(title);
         }
         
+        EventFlag.checkAllFlags();
         
         // Stop here if we're only running checks
         if (onlyCheckIDs)

@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Event implements HtmlObject {
+public class Event implements HtmlObject, EventDecision {
 
     private int id;
     private Trigger trigger;
@@ -33,7 +33,7 @@ public class Event implements HtmlObject {
     private List<Action> actions;
 
     Event(EUGScanner scanner) {
-        actions = new ArrayList<Action>();
+        actions = new ArrayList<>();
         
         if (scanner.nextToken() != TokenType.LBRACE) {
             warn("No '{' after \"event =\"", scanner.getLine(), scanner.getColumn());
@@ -47,7 +47,7 @@ public class Event implements HtmlObject {
                         scanner.nextToken();
                         id = Integer.parseInt(scanner.lastStr());
                     } else if (ident.equals("trigger")) {
-                        trigger = Trigger.parseTrigger(scanner);
+                        trigger = Trigger.parseTrigger(scanner, this);
                     } else if (ident.equals("random")) {
                         scanner.nextToken();
                         random = (scanner.lastStr().equalsIgnoreCase("yes"));
@@ -84,7 +84,7 @@ public class Event implements HtmlObject {
                             || ident.equals("action_c")
                             || ident.equals("action_d")
                             || ident.equals("action")) {
-                        Action act = new Action(scanner);
+                        Action act = new Action(scanner, this);
                         actions.add(act);
                         if (act.getAIChance() >= 0)
                             totalChance += act.getAIChance();
