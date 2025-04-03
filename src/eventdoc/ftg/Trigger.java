@@ -64,6 +64,7 @@ abstract class CombinedTrigger extends Trigger {
             switch (scanner.nextToken()) {
                 case IDENT:
                     String ident = scanner.lastStr().toLowerCase();
+                    ident = ident.replace("neighbor", "neighbour");
                     if (ident.equals("and")) {
                         triggers.add(new AndTrigger(scanner, parent));
                     } else if (ident.equals("or")) {
@@ -219,7 +220,7 @@ abstract class CombinedTrigger extends Trigger {
                         scanner.nextToken();
                         scanner.pushBack();
                         if (scanner.lastToken() == TokenType.LBRACE)
-                            triggers.add(new OverlordTrigger(scanner));
+                            triggers.add(new OtherCountryTrigger(scanner, parent, "our overlord (if any)"));
                         else
                             triggers.add(new IsOurOverlordTrigger(scanner));
                     } else if (ident.equals("num_of_ports")) {
@@ -255,6 +256,26 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new NumOfGoodsTrigger(scanner));
                     } else if (ident.equals("num_of_buildings")) {
                         triggers.add(new NumOfBuildingsTrigger(scanner));
+                    } else if (ident.equals("any_country")) {
+                        triggers.add(new OtherCountryTrigger(scanner, parent, "any country"));
+                    } else if (ident.equals("any_neighbour")) {
+                        triggers.add(new OtherCountryTrigger(scanner, parent, "any neighboring country"));
+                    } else if (ident.equals("any_vassal")) {
+                        triggers.add(new OtherCountryTrigger(scanner, parent, "any vassal"));
+                    } else if (ident.equals("all_owned")) {
+                        triggers.add(new AllGeographyTrigger(scanner, "own"));
+                    } else if (ident.equals("all_controlled")) {
+                        triggers.add(new AllGeographyTrigger(scanner, "control"));
+                    } else if (ident.equals("all_discovered")) {
+                        triggers.add(new AllGeographyTrigger(scanner, "have discovered"));
+                    } else if (ident.equals("any_owned")) {
+                        triggers.add(new AnyGeographyTrigger(scanner, "own"));
+                    } else if (ident.equals("any_controlled")) {
+                        triggers.add(new AnyGeographyTrigger(scanner, "control"));
+                    } else if (ident.equals("any_discovered")) {
+                        triggers.add(new AnyGeographyTrigger(scanner, "have discovered"));
+                    } else if (ident.equals("custom_tooltip")) {
+                        triggers.add(new CustomTooltipTrigger(scanner, parent));
                     } else if (ident.length() == 3) {
                         // assume it's a country trigger
                         triggers.add(new OtherCountryTrigger(scanner, parent, ident));
@@ -1790,6 +1811,74 @@ class NumOfBuildingsTrigger extends CountOfTypeTrigger {
     @Override
     public void generateHTML(BufferedWriter out) throws IOException {
         out.write(String.format(Text.getTextCleaned("TRIGGER_NUM_OF_BUILDINGS"), data, type));
+    }
+}
+
+abstract class GeographyTrigger extends StringTrigger {
+    protected String action; // e.g. "own", "control", "have discovered"
+    GeographyTrigger(EUGScanner s, String action) {
+        super(s);
+        this.action = action;
+    }
+    
+    protected abstract String getCountType();
+    
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write("Must " + action + getCountType() + GeographyDB.getName(value));
+    }
+}
+
+class AnyGeographyTrigger extends GeographyTrigger {
+    AnyGeographyTrigger(EUGScanner s, String action) {
+        super(s, action);
+    }
+
+    @Override
+    protected String getCountType() {
+        return " at least one province in ";
+    }
+}
+
+class AllGeographyTrigger extends GeographyTrigger {
+    AllGeographyTrigger(EUGScanner s, String action) {
+        super(s, action);
+    }
+    
+    @Override
+    protected String getCountType() {
+        return " all provinces in ";
+    }
+}
+
+class CustomTooltipTrigger extends CombinedTrigger {
+    private String tooltip;
+    CustomTooltipTrigger(EUGScanner s, EventDecision parent) {
+        if (s.nextToken() != TokenType.LBRACE) {
+            warn("Missing '{' in trigger", s.getLine(), s.getColumn());
+        }
+        
+        if (s.nextToken() != TokenType.IDENT) {
+            warn("custom_tooltip trigger must begin with \"tooltip = x\"", s.getLine(), s.getColumn());
+        }
+        if (s.lastStr().equals("tooltip")) {
+            s.nextToken();
+            tooltip = s.lastStr();
+        } else {
+            warn("custom_tooltip trigger must begin with \"tooltip = x\"; found \"" + s.lastStr() + "\"", s.getLine(), s.getColumn());
+            s.nextToken();
+        }
+        this.parent = parent;
+        init(s, false);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write("Human-readable tooltip: " + Text.getTextCleaned(tooltip));
+        out.newLine();
+        out.write("<br>Actual conditions:");
+        out.newLine();
+        super.generateHTML(out);
     }
 }
 
