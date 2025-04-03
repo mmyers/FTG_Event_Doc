@@ -215,7 +215,7 @@ public class Command {
         } else if (command.equals("ai")) {
             commandType = new AICommand(scanner);
         } else if (command.equals("flag")) {
-            commandType = new FlagCommand(scanner);
+            commandType = new FlagCommand(scanner, parent);
         } else if (command.equals("badboy")) {
             commandType = new BadboyCommand(scanner);
         } else if (command.equals("natives")) {
@@ -945,8 +945,9 @@ public class Command {
     }
     
     private static class FlagCommand extends IntCommand {
-        FlagCommand(EUGScanner scanner) {
+        FlagCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            EventFlag.getFlag(Integer.toString(which)).addSet(parent);
         }
 
         @Override
