@@ -107,7 +107,7 @@ class EventDB {
                 decisionsInFiles.put(dec.getId(), file.getName());
             } 
         }
-        Collections.sort(currentFile, SORT_BY_DATE_DECISIONS_FIRST);
+        // Collections.sort(currentFile, SORT_BY_DATE_DECISIONS_FIRST); // we'll sort later, after all event triggering data has been collected
     }
 
     public static Event getEvent(int id) {
@@ -146,6 +146,7 @@ class EventDB {
         for (String file : files) {
             System.out.println(file);
             List<HtmlObject> events = eventFiles.get(file);
+            Collections.sort(events, SORT_BY_DATE_DECISIONS_FIRST); // must sort here again because originally we didn't have data on which events triggered which other events!
             File page = new File(directory + DOC_FOLDER + file + ".htm");
             try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
                 writeHeader(file, output, false, false, true);
