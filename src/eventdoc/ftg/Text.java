@@ -55,6 +55,7 @@ final class Text {
         loadTextFile(text, Main.resolver.resolveFilename(folder + "addendum.csv"));
         loadTextFile(text, Main.resolver.resolveFilename(folder + "misc.csv"));
         loadTextFile(text, Main.resolver.resolveFilename(folder + "1.3.csv"));
+        loadTextFile(text, Main.resolver.resolveFilename(folder + "1.31.csv"));
 
 //        for (File f : Main.resolver.listFiles(textDir + "\\" + language)) {
 //            if (!f.getName().endsWith(".csv")) {
@@ -67,6 +68,10 @@ final class Text {
 
     private static void loadTextFile(Map<String, String> text, String filename) {
         File f = new File(filename);
+        if (!f.exists()) {
+            System.out.println("Not reading text from missing file " + filename);
+            return;
+        }
 
         System.out.println("Reading text from " + f.getAbsolutePath());
 
