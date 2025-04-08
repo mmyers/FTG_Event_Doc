@@ -49,6 +49,7 @@ class EventDB {
     private static final String ALL_EVENTS_BY_COUNTRY_INDEX_NAME = "all_events_by_country.htm";
     private static final String MONARCHS_INDEX_NAME = "monarchs.htm";
     private static final String LEADERS_INDEX_NAME = "leaders.htm";
+    private static final String EVENT_FLAG_INDEX_NAME = "eventflags.htm";
 
     private EventDB() {
     }
@@ -299,6 +300,9 @@ class EventDB {
         
         System.out.println(LEADERS_INDEX_NAME);
         writeLeaderTable(directory);
+        
+        System.out.println(EVENT_FLAG_INDEX_NAME);
+        writeEventFlagTable(directory);
 
         System.out.println("Finished creating HTML");
     }
@@ -306,6 +310,10 @@ class EventDB {
     
     static final String makeLink(final int eventID) {
         return makeLink(eventID, true, null, true);
+    }
+    
+    static final String makeSubfolderLink(final int eventID) {
+        return makeLink(eventID, true, DOC_FOLDER, true);
     }
     
     /**
@@ -373,6 +381,10 @@ class EventDB {
     
     static final String makeDecisionLink(final int decisionID) {
         return makeDecisionLink(decisionID, true, null, false);
+    }
+    
+    static final String makeSubfolderDecisionLink(final int eventID) {
+        return makeDecisionLink(eventID, true, DOC_FOLDER, true);
     }
     
     static final String makeDecisionLink(int decisionID, boolean underlined, String dir, boolean includeID) {
@@ -953,6 +965,48 @@ class EventDB {
             output.newLine();
         } catch (IOException ex) {
             System.out.println("Error writing leader index file");
+        }
+    }
+    
+    private static void writeEventFlagTable(String directory) {
+        File lookup = new File(directory + EVENT_FLAG_INDEX_NAME);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
+            writeHeader("Event Flags", output, true, true, true);
+
+            output.write("<body>");
+            output.newLine();
+
+            writePageStart(output);
+            output.newLine();
+
+            output.write("<div class=\"index\">");
+            output.newLine();
+
+            output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">Event Flags</a></h2></div>");
+            output.newLine();
+            
+            output.write(EventFlag.getTableHtml());
+
+            output.write("<div class=\"index_footer\">");
+            output.newLine();
+            output.write("<br /><p><a href=\"" + INDEX_NAME + "\">Back to Index</a></p>");
+            output.newLine();
+            output.write("</div>");
+            
+            output.newLine();
+            output.write("</div>");
+            output.newLine();
+            output.write("</div> <!-- End of main content -->");
+            output.newLine();
+            output.newLine();
+            writePageEnd(output);
+            output.write("<script type=text/javascript>setupTable();</script>");
+            output.write("</body>");
+            output.newLine();
+            output.write("</html>");
+            output.newLine();
+        } catch (IOException ex) {
+            System.out.println("Error writing event flags index file");
         }
     }
     

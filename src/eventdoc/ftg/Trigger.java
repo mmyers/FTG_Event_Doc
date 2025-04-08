@@ -470,10 +470,7 @@ class FlagTrigger extends StringTrigger {
 
     @Override
     public void generateHTML(BufferedWriter out) throws IOException {
-        if (!value.contains(" "))
-            out.write("Flag " + value + " is set");
-        else
-            out.write("Flag \"" + value + "\" is set");
+        out.write("Flag " + EventFlag.formatFlag(value) + " is set");
     }
 }
 abstract class IntTrigger extends Trigger {

@@ -952,7 +952,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Global flag " + which + " is set (" + Text.getText("ee_flag_" + which).replace("\\n", "") + ")");
+            out.write("Global flag " + EventFlag.formatFlag(Integer.toString(which)) + " is set");// (" + Text.getText("ee_flag_" + which).replace("\\n", "") + ")");
         }
     }
 
@@ -1335,10 +1335,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            if (!which.contains(" "))
-                out.write("Set flag " + which + " for events");
-            else
-                out.write("Set flag \"" + which + "\" for events");
+            out.write("Set flag " + EventFlag.formatFlag(which) + " for events");
         }
     }
     
@@ -1350,7 +1347,7 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-            out.write("Clear flag \"" + which + "\"");
+            out.write("Clear flag " + EventFlag.formatFlag(which));
         }
     }
     

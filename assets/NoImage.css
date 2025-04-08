@@ -130,6 +130,28 @@ ul.trigger {
 	padding-bottom: 1em;
 }
 
+
+/*****************************
+ * Event flag page
+ *****************************/
+
+.event_flag_wrapper {
+	padding: 15px;
+}
+
+.event_flag_table_wrapper {
+	overflow-y: auto;
+	max-height: 25em;
+	width: fit-content;
+}
+
+.event_flag_table_wrapper td {
+	vertical-align: top;
+	text-align: left;
+	padding-right: 0.5em;
+}
+
+
 /*****************************
  * Standard elements
  *****************************/
