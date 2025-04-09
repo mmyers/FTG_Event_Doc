@@ -754,9 +754,9 @@ class EventDB {
     private static void writeCountryLookupPage(String directory) {
         File lookup = new File(directory + ALL_EVENTS_BY_COUNTRY_INDEX_NAME);
         try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
-            writeHeader("All Events", output, true, true, false);
-
-            output.write("<body>");
+            writeHeader("All Events", output, true, true, true);
+            
+            output.write("<body onload=\"toggle('eventlist')\">");
             output.newLine();
 
             writePageStart(output);
@@ -765,7 +765,60 @@ class EventDB {
             output.write("<div class=\"index\">");
             output.newLine();
 
+            
+            // Top index
+            output.write("<div class=\"index\" id=\"index\">");
+            output.newLine();
             output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">All Events</a></h2></div>");
+            output.newLine();
+            output.write("<div class=\"index_body\">");
+            output.newLine();
+            output.write("<a href=\"javascript:toggle('eventlist')\">Toggle table of contents</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<div class=\"eventlist\" id=\"eventlist\">");
+            output.newLine();
+
+            List<String> allCountryTags = new ArrayList<>(allEvents.values().stream().filter(e -> !"AI_EVENT".equals(e.getName())).map(e -> e.getTag()).distinct().collect(Collectors.toList()));
+            Collections.sort(allCountryTags, (t1, t2) -> {
+                return Text.getText(t1).compareTo(Text.getText(t2)); // sort by name, not by tag
+            });
+            
+            for (String tag : allCountryTags) {
+                if (tag == null || tag.isEmpty())
+                    continue;
+                output.write("<b><a href=\"#" + tag + "\">" + Text.getText(tag) + "</a></b>");
+                long numEvts = allEvents.values().stream().filter(e -> tag.equals(e.getTag())).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+                output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
+            }
+            
+            List<Integer> allEventProvs =  new ArrayList<>(allEvents.values().stream().filter(e -> !"AI_EVENT".equals(e.getName())).map(e -> e.getProvince()).distinct().collect(Collectors.toList()));
+            Collections.sort(allEventProvs, (id1, id2) -> {
+                return Text.getText(ProvinceDB.getName(id1)).compareTo(Text.getText(ProvinceDB.getName(id2)));
+            });
+            
+            output.write("<hr />\n");
+            
+            for (Integer provId : allEventProvs) {
+                if (provId <= 0)
+                    continue;
+                output.write("<b><a href=\"#prov" + provId + "\">" + Text.getText(ProvinceDB.getName(provId)) + "</a></b>");
+                long numEvts = allEvents.values().stream().filter(e -> provId == e.getProvince()).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+                output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
+            }
+            
+            output.write("<hr />\n");
+            output.write("<b><a href=\"#global\">All Countries</a></b>");
+            long numEvts = allEvents.values().stream().filter(e -> e.getTag() == null && e.getProvince() < 0).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+            output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
+            
+
+            output.write("</div> <!-- End of event list -->");
+            output.newLine();
+            output.write("<br />");
+            output.newLine();
+
+            output.write("</div> <!-- End of index body -->");
             output.newLine();
 
             output.write("<div class=\"index_footer\">");
@@ -792,7 +845,7 @@ class EventDB {
                 // print some header stuff if this is the first event for this country or province
                 if (evt.getTag() != null && !evt.getTag().equals(lastTag)) {
                     if (evt.getTag() != null)
-                        output.write("<h3>" + Text.getText(evt.getTag()) + "</h3>\n");
+                        output.write("<h3 id=\"" + evt.getTag() + "\">" + Text.getText(evt.getTag()) + "</h3>\n");
                 }
                 lastTag = evt.getTag();
                 
@@ -801,13 +854,13 @@ class EventDB {
                 
                 if (lastProv != evt.getProvince()) {
                     if (evt.getProvince() != -1)
-                        output.write("<h3>" + Text.getText(ProvinceDB.getName(evt.getProvince())) + "</h3>\n");
+                        output.write("<h3 id=\"prov" + evt.getProvince() + "\">" + Text.getText(ProvinceDB.getName(evt.getProvince())) + "</h3>\n");
                 }
                 lastProv = evt.getProvince();
                 
                 if (evt.getTag() == null && evt.getProvince() == -1) {
                     if (!printedAllCountries)
-                        output.write("<h2>All Countries</h2>\n");
+                        output.write("<h2 id=\"global\">All Countries</h2>\n");
                     printedAllCountries = true;
                 }
                 // end of header stuff
