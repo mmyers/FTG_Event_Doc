@@ -992,9 +992,6 @@ public class Command {
 
         @Override
         protected void generateHTML(BufferedWriter out) throws IOException {
-//            if (value.equals("-1"))
-//                out.write("Religion in " + getProv() + " changes to the state religion");
-//            else
                 out.write("Religion in " + getProv() + " changes to " + Text.getText("religion_" + value));
         }
     }
@@ -1018,7 +1015,7 @@ public class Command {
             super(scanner);
         }
         
-        private final String getManu() {
+        private String getManu() {
             if (value.equals("-1")) {
                 return "random manufactory";
             } else if (value.equalsIgnoreCase("luxury")) {
@@ -1047,7 +1044,7 @@ public class Command {
             super(scanner);
         }
         
-        private final String getBuilding() {
+        private String getBuilding() {
             if (value.equals("-1")) {
                 return "random building";
             } else {
@@ -1066,7 +1063,7 @@ public class Command {
             super(scanner);
         }
         
-        private final String getBuilding() {
+        private String getBuilding() {
             if (value.equals("-1")) {
                 return "random building";
             } else {
@@ -1154,8 +1151,8 @@ public class Command {
     }
     
     private static class DomesticCommand extends CommandType {
-        private String policy;
-        private int value;
+        private final String policy;
+        private final int value;
         
         DomesticCommand(EUGScanner scanner) {
             super(scanner);
@@ -1360,7 +1357,7 @@ public class Command {
     }
     
     private static class FlagnameCommand extends CommandType {
-        private String flagname;
+        private final String flagname;
         
         FlagnameCommand(EUGScanner scanner) {
             super(scanner);
@@ -1377,7 +1374,7 @@ public class Command {
     }
     
     private static class AICommand extends CommandType {
-        private String ai;
+        private final String ai;
         
         AICommand(EUGScanner scanner) {
             super(scanner);
@@ -1610,7 +1607,7 @@ public class Command {
             super(scanner);
         }
         
-        private final String getProv() {
+        private String getProv() {
             return getProv(value);
         }
 
@@ -1817,8 +1814,8 @@ public class Command {
     }
     
     private static class HRECommand extends CommandType {
-        private int which;
-        private boolean value;
+        private final int which;
+        private final boolean value;
         HRECommand(EUGScanner scanner) {
             super(scanner);
             which = Integer.parseInt(getWhich());
@@ -2085,7 +2082,7 @@ public class Command {
 
     private static class CountryNameCommand extends CommandType {
 
-        private String value;
+        private final String value;
 
         CountryNameCommand(EUGScanner scanner) {
             super(scanner);
@@ -2147,7 +2144,7 @@ public class Command {
     }
 
     private static class AiSetCommand extends CommandType {
-        public static String[] prefs = new String[]{
+        protected static String[] prefs = new String[]{
             "expansion",
             "war",
             "ferocity",
