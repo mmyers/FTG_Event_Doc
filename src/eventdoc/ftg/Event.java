@@ -422,9 +422,15 @@ public class Event implements HtmlObject, EventDecision {
         }
     };
     
-    public static Comparator<Event> SORT_BY_COUNTRY = new Comparator<Event>() {
+    /**
+     * Comparator which sorts events alphabetically by country name if present, then by province name if present, then by date using {@link #SORT_BY_DATE}.
+     */
+    public static final Comparator<Event> SORT_BY_COUNTRY = new Comparator<Event>() {
         @Override
         public int compare(Event o1, Event o2) {
+            if (o1 == o2)
+                return 0;
+
             if (o1.tag != null && o2.tag == null)
                 return -1;
             if (o1.tag == null && o2.tag != null)
@@ -434,7 +440,6 @@ public class Event implements HtmlObject, EventDecision {
                 int ret = Text.getText(o1.tag).compareTo(Text.getText(o2.tag));
                 if (ret != 0)
                     return ret;
-                return o1.id - o2.id;
             }
             
             // compare by province if possible
@@ -447,7 +452,6 @@ public class Event implements HtmlObject, EventDecision {
                 int ret = Text.getText(ProvinceDB.getName(o1.province)).compareTo(Text.getText(ProvinceDB.getName(o2.province)));
                 if (ret != 0)
                     return ret;
-                return o1.id - o2.id;
             }
             
             if (o1.random && !o2.random)
@@ -455,7 +459,7 @@ public class Event implements HtmlObject, EventDecision {
             if (!o1.random && o2.random)
                 return -1;
             
-            return o1.id - o2.id;
+            return SORT_BY_DATE.compare(o1, o2);
         }
     };
 }
