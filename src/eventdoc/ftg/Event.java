@@ -2,9 +2,11 @@ package eventdoc.ftg;
 
 import eug.parser.EUGScanner;
 import eug.parser.TokenType;
+import eug.shared.GenericObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -31,6 +33,8 @@ public class Event implements HtmlObject, EventDecision {
     private int offset = -1;
     private GregorianCalendar deathdate;
     private List<Action> actions;
+    
+    private List<GenericObject> triggeredByRebelFactions;
 
     Event(EUGScanner scanner) {
         actions = new ArrayList<>();
@@ -192,6 +196,27 @@ public class Event implements HtmlObject, EventDecision {
                     out.write("<br />");
                     out.newLine();
                 }
+            } else if (triggeredByRebelFactions != null) {
+                
+                Collections.sort(triggeredByRebelFactions, (o1, o2) -> {
+                    return Text.getText(o1.name).compareTo(Text.getText(o2.name));
+                });
+                
+                for (GenericObject faction : triggeredByRebelFactions) {
+                    out.write(EventDB.formatCountry(faction.name) + " on ");
+                    
+                    boolean cap = (faction.getInt("on_capital_capture") == id);
+                    boolean prov = (faction.getInt("on_province_capture") == id);
+                    
+                    if (cap)
+                        out.write("capital capture");
+                    if (cap && prov)
+                        out.write(" and ");
+                    if (prov)
+                        out.write("province capture");
+                    
+                    out.write("<br />\n");
+                }
             } else {
                 System.out.println("Warning: Event " + id + " has no date, is not random, and is not triggered by another event");
                 out.write("<span class=\"error\">Not triggered!</span>");
@@ -324,6 +349,16 @@ public class Event implements HtmlObject, EventDecision {
             }
         }
         return canSleep;
+    }
+    
+    void addRebelFactionTrigger(GenericObject rebelFaction) {
+        if (triggeredByRebelFactions == null)
+            triggeredByRebelFactions = new ArrayList<>();
+        triggeredByRebelFactions.add(rebelFaction);
+    }
+    
+    List<GenericObject> getRebelFactionTriggers() {
+        return triggeredByRebelFactions;
     }
     
     private static final Pattern colorPattern = Pattern.compile("§[WY]");

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -183,38 +184,7 @@ class EventDB {
                     if (!(evtOrDec instanceof Event))
                         continue;
                     Event evt = (Event) evtOrDec;
-                    if (evt.isRandom()) {
-                        output.write("Random: ");
-                    } else if (triggersOf.get(evt.getId()) != null) {
-                        output.write("Triggered (");
-                        List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
-                        for (int i = 0; i < triggeringEvents.size(); i++) {
-                            Event e = allEvents.get(triggeringEvents.get(i));
-                            if (e.getStartDate() != null) {
-                                output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
-                                if (e.getEndDate() != null) {
-                                    output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
-                                }
-                            } else if (e.isRandom()) {
-                                output.write("random event");
-                            } else if (triggersOf.get(e.getId()) != null) {
-                                output.write("triggered event");
-                            } else {
-                                output.write("unknown event");
-                            }
-                            if (i < triggeringEvents.size() - 1)
-                                output.write(", ");
-                        }
-                        output.write("): ");
-                    } else if (evt.getStartDate() != null) {
-                        output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
-                        if (evt.getEndDate() != null) {
-                            output.write("-" + evt.getEndDate().get(GregorianCalendar.YEAR));
-                        }
-                        output.write(": ");
-                    } else {
-                        output.write("<span class=\"error\">Unknown: </span>");
-                    }
+                    writeEventYear(evt, output);
                     output.write(makeLink(evt.getId(), false, null, false));
                     output.write("<br />");
                     output.newLine();
@@ -306,7 +276,55 @@ class EventDB {
 
         System.out.println("Finished creating HTML");
     }
-    
+
+    private static void writeEventYear(Event evt, final BufferedWriter output) throws IOException {
+        if (evt.isRandom()) {
+            output.write("Random: ");
+        } else if (triggersOf.get(evt.getId()) != null) {
+            // might have to recursively check triggers of triggers until we find one with an actual date
+            List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
+            for (int i = 0; i < triggeringEvents.size(); i++) {
+                Event e = allEvents.get(triggeringEvents.get(i));
+                do {
+                    if (e.getStartDate() != null) {
+                        output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
+                        if (e.getEndDate() != null) {
+                            output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
+                        }
+                        if (i < triggeringEvents.size() - 1)
+                            output.write(", ");
+                        break;
+                    } else if (e.isRandom()) {
+                        output.write("random event");
+                        if (i < triggeringEvents.size() - 1)
+                            output.write(", ");
+                        break;
+                    } else if (triggersOf.get(e.getId()) != null) {
+                        e = allEvents.get(triggersOf.get(e.getId()).keySet().iterator().next());
+                    } else {
+                        output.write("unknown event");
+                        if (i < triggeringEvents.size() - 1)
+                            output.write(", ");
+                        break;
+                    }
+                } while (e != null);
+            }
+            if (triggeringEvents.size() > 1)
+                output.write(" (triggered by " + triggeringEvents.size() + " events): ");
+            else
+                output.write(" (triggered): ");
+        } else if (evt.getStartDate() != null) {
+            output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
+            if (evt.getEndDate() != null) {
+                output.write("-" + evt.getEndDate().get(GregorianCalendar.YEAR));
+            }
+            output.write(": ");
+        } else if (evt.getRebelFactionTriggers() != null) {
+            output.write("Triggered by rebels: ");
+        } else {
+            output.write("<span class=\"error\">Unknown: </span>");
+        }
+    }
     
     static final String makeLink(final int eventID) {
         return makeLink(eventID, true, null, true);
@@ -704,39 +722,8 @@ class EventDB {
             for (Event evt : events) {
                 if ("AI_EVENT".equals(evt.getName()))
                     continue;
-
-                if (evt.isRandom()) {
-                    output.write("Random: ");
-                } else if (evt.getStartDate() != null) {
-                    output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
-                    if (evt.getEndDate() != null) {
-                        output.write("-" + evt.getEndDate().get(GregorianCalendar.YEAR));
-                    }
-                    output.write(": ");
-                } else if (triggersOf.get(evt.getId()) != null) {
-                    output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
-                    for (int i = 0; i < triggeringEvents.size(); i++) {
-                        Event e = allEvents.get(triggeringEvents.get(i));
-                        if (e.getStartDate() != null) {
-                            output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
-                            if (e.getEndDate() != null) {
-                                output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
-                            }
-                        } else if (e.isRandom()) {
-                            output.write("random event");
-                        } else if (triggersOf.get(e.getId()) != null) {
-                            output.write("triggered event");
-                        } else {
-                            output.write("unknown event");
-                        }
-                        if (i < triggeringEvents.size() - 1)
-                            output.write(", ");
-                    }
-                    output.write("): ");
-                } else {
-                    output.write("<span class=\"error\">Unknown: </span>");
-                }
+                
+                writeEventYear(evt, output);
                 output.write(makeLink(evt.getId(), true, DOC_FOLDER, false));
                 output.write("<br />");
                 output.newLine();
@@ -824,39 +811,8 @@ class EventDB {
                     printedAllCountries = true;
                 }
                 // end of header stuff
-
-                if (evt.isRandom()) {
-                    output.write("Random: ");
-                } else if (evt.getStartDate() != null) {
-                    output.write(String.valueOf(evt.getStartDate().get(GregorianCalendar.YEAR)));
-                    if (evt.getEndDate() != null) {
-                        output.write("-" + evt.getEndDate().get(GregorianCalendar.YEAR));
-                    }
-                    output.write(": ");
-                } else if (triggersOf.get(evt.getId()) != null) {
-                    output.write("Triggered (");
-                    List<Integer> triggeringEvents = new ArrayList<>(triggersOf.get(evt.getId()).keySet());
-                    for (int i = 0; i < triggeringEvents.size(); i++) {
-                        Event e = allEvents.get(triggeringEvents.get(i));
-                        if (e.getStartDate() != null) {
-                            output.write(String.valueOf(e.getStartDate().get(GregorianCalendar.YEAR)));
-                            if (e.getEndDate() != null) {
-                                output.write("-" + e.getEndDate().get(GregorianCalendar.YEAR));
-                            }
-                        } else if (e.isRandom()) {
-                            output.write("random event");
-                        } else if (triggersOf.get(e.getId()) != null) {
-                            output.write("triggered event");
-                        } else {
-                            output.write("unknown event");
-                        }
-                        if (i < triggeringEvents.size() - 1)
-                            output.write(", ");
-                    }
-                    output.write("): ");
-                } else {
-                    output.write("<span class=\"error\">Unknown: </span>");
-                }
+                
+                writeEventYear(evt, output);
                 output.write(makeLink(evt.getId(), true, DOC_FOLDER, true));
                 output.write("<br />");
                 output.newLine();

@@ -1,6 +1,9 @@
 package eventdoc.ftg;
 
+import eug.parser.EUGFileIO;
+import eug.parser.ParserSettings;
 import eug.shared.FilenameResolver;
+import eug.shared.GenericObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -116,6 +119,7 @@ public class Main {
             EventDB.setTitle(title);
         }
         
+        checkRebelTriggers();
         EventFlag.checkAllFlags();
         
         // Stop here if we're only running checks
@@ -393,6 +397,37 @@ public class Main {
             ex.printStackTrace();
         }
         return null;
+    }
+    
+    private static void checkRebelTriggers() {
+        GenericObject rebels = EUGFileIO.load(resolver.resolveFilename("db/rebels.txt"), ParserSettings.getQuietSettings());
+        
+        if (rebels == null) // either EU2 or FTG pre-1.3
+            return;
+        
+        for (GenericObject faction : rebels.children) {
+            int addedCapital = -1;
+            if (faction.hasString("on_capital_capture")) {
+                int id = faction.getInt("on_capital_capture");
+                Event toTrigger = EventDB.getEvent(id);
+                if (toTrigger == null) {
+                    System.out.println("Rebel faction " + faction.name + " triggers non-existent event on capital capture: " + id);
+                } else {
+                    toTrigger.addRebelFactionTrigger(faction);
+                    addedCapital = id;
+                }
+            }
+            if (faction.hasString("on_province_capture")) {
+                int id = faction.getInt("on_province_capture");
+                Event toTrigger = EventDB.getEvent(id);
+                if (toTrigger == null) {
+                    System.out.println("Rebel faction " + faction.name + " triggers non-existent event on province capture: " + id);
+                } else {
+                    if (id != addedCapital) // don't add it twice, the event only needs it once
+                        toTrigger.addRebelFactionTrigger(faction);
+                }
+            }
+        }
     }
 
     private Main() {
