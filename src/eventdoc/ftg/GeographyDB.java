@@ -11,10 +11,8 @@ import java.util.Map;
  */
 public class GeographyDB {
 
-    private static final Map<Integer, Geography> geographyById =
-            new HashMap<Integer, Geography>();
-    private static final Map<String, Geography> geographyByTag =
-            new HashMap<String, Geography>();
+    private static final Map<Integer, Geography> geographyById = new HashMap<>();
+    private static final Map<String, Geography> geographyByTag = new HashMap<>();
 
 
     static void init(String filename) {
@@ -68,6 +66,10 @@ public class GeographyDB {
             return "(unknown geography type)";
         else
             return g.name;
+    }
+    
+    public static boolean isValidTag(String tag) {
+        return geographyByTag.containsKey(tag.toLowerCase());
     }
 
     static class Geography {
