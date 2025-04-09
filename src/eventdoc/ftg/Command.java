@@ -365,20 +365,7 @@ public class Command {
             }
         }
         
-        protected String getWhich() {
-
-//            if (scanner.nextToken() != TokenType.IDENT) {
-//                warn("Expected \"which =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            if (!scanner.lastStr().equalsIgnoreCase("which")) {
-//                warn("Expected \"which =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            if (scanner.nextToken() != TokenType.ULSTRING) {
-//                warn("Expected \"which = <value>\"", scanner.getLine(), scanner.getColumn());
-//            }
-
+        protected final String getWhich() {
             // FTG has text aliases for the -X codes
             String s = which;
             if (s == null)
@@ -409,50 +396,14 @@ public class Command {
                 return "-12";
             }
             
-            return which; //scanner.lastStr();
+            return which;
         }
         
-//        protected static String getWhichQuotes(EUGScanner scanner) {
-//            // Copied from getWhich, but allowing DLSTRING
-//
-//            if (scanner.nextToken() != TokenType.IDENT) {
-//                warn("Expected \"which =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            if (!scanner.lastStr().equalsIgnoreCase("which")) {
-//                warn("Expected \"which =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            switch (scanner.nextToken()) {
-//                case ULSTRING:
-//                case DLSTRING:
-//                    return scanner.lastStr();
-//                default:
-//                    warn("Expected \"which = <value>\"", scanner.getLine(), scanner.getColumn());
-//                    break;
-//            }
-//            return "";
-//        }
-        
-        protected String getValue() {
+        protected final String getValue() {
             return value;
-//            if (scanner.nextToken() != TokenType.IDENT) {
-//                warn("Expected \"value =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            if (!scanner.lastStr().equalsIgnoreCase("value")) {
-//                warn("Expected \"value =\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            scanner.nextToken();
-//            if (scanner.lastToken() != TokenType.ULSTRING && scanner.lastToken() != TokenType.DLSTRING) {
-//                warn("Expected \"value = <value>\"", scanner.getLine(), scanner.getColumn());
-//            }
-//
-//            return scanner.lastStr();
         }
 
-        protected String getWhere() {
+        protected final String getWhere() {
             return where;
         }
         
