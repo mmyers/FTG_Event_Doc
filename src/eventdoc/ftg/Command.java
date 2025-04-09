@@ -2102,7 +2102,7 @@ public class Command {
         protected String which;
         protected String value;
 
-        public static String[] lists = { "area", "region", "continent", "ignore", "combat" };
+        protected static String[] lists = { "area", "region", "continent", "ignore", "combat", "friendly" };
 
         AiListCommand(EUGScanner scanner) {
             super(scanner);
