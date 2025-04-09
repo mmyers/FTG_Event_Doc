@@ -407,6 +407,37 @@ public class Command {
             return where;
         }
         
+        private String getWhereProvinceString() {
+            if (where == null)
+                return "";
+            
+            if (where.equalsIgnoreCase("neighbor") || where.equalsIgnoreCase("neighbour"))
+                return " neighboring our country";
+            if (where.equalsIgnoreCase("coastal"))
+                return " on the sea coast";
+            if (where.equalsIgnoreCase("border"))
+                return " bordering another country";
+            if (GeographyDB.isValidTag(where))
+                return " in " + Text.getText(GeographyDB.getName(where));
+            System.out.println("Unknown 'where' type: " + where);
+            return "";
+        }
+        
+        private String getWhereCountryString() {
+            if (where == null)
+                return "";
+            
+            if (where.equalsIgnoreCase("neighbor") || where.equalsIgnoreCase("neighbour"))
+                return " neighboring our country";
+            //if (where.equalsIgnoreCase("coastal")) // coastal not valid for countries
+            //    return " on the sea coast";
+            //if (where.equalsIgnoreCase("border")) // border not valid for countries
+            //    return " bordering another country";
+            if (GeographyDB.isValidTag(where))
+                return " in " + Text.getText(GeographyDB.getName(where));
+            System.out.println("Unknown 'where' type: " + where);
+            return "";
+        }
         
         /** Resolve the given int target, which may be either a province ID or a random set */
         protected String getProv(int which) {
@@ -417,34 +448,28 @@ public class Command {
             
             switch (which) {
                 case -1:
-                    if (getWhere() != null)
-                        return "a random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "a random province";
+                    return "a random province" + getWhereProvinceString();
                 case -2:
                     return "the capital province";
                 case -3:
                     return "the same province";
                 case -4:
-                    if (getWhere() != null)
-                        return "a different random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "a different random province";
+                    return "a different random province" + getWhereProvinceString();
                 case -5:
-                    if (getWhere() != null)
-                        return "a random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "a random non-capital province";
+                    return "a random non-capital province" + getWhereProvinceString();
                 case -6:
                 case -7:
                 case -9:
                 case -10:
+                case -11:
+                case -12:
                     System.out.println("Cannot use " + which + " for province in commands");
                     return which + " (error)";
                 case -8:
-                    if (getWhere() != null)
-                        return "a different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "a different non-capital province";
+                    return "a different non-capital province" + getWhereProvinceString();
                 default:
                     int id = (-which) - 1000;
-                    return "a random province in " + Text.getText(GeographyDB.getName(id));
+                    return "a random province in " + Text.getText(GeographyDB.getName(id)) + getWhereProvinceString();
             }
         }
 
@@ -455,60 +480,92 @@ public class Command {
             }
             switch (which) {
                 case -1:
-                    if (getWhere() != null)
-                        return "A random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "A random province";
+                    return "A random province" + getWhereProvinceString();
                 case -2:
                     return "The capital province";
                 case -3:
                     return "The same province";
                 case -4:
-                    if (getWhere() != null)
-                        return "A different random province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "A different random province";
+                    return "A different random province" + getWhereProvinceString();
                 case -5:
-                    if (getWhere() != null)
-                        return "A random non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "A random non-capital province";
+                    return "A random non-capital province" + getWhereProvinceString();
                 case -6:
                 case -7:
                 case -9:
                 case -10:
+                case -11:
+                case -12:
                     System.out.println("Cannot use " + which + " for province in commands");
                     return which + " (error)";
                 case -8:
-                    if (getWhere() != null)
-                        return "A different non-capital province in " + Text.getText(GeographyDB.getName(getWhere()));
-                    return "A different non-capital province";
+                    return "A different non-capital province" + getWhereProvinceString();
                 default:
                     int id = (-which) - 1000;
-                    return "A random province in " + Text.getText(GeographyDB.getName(id));
+                    return "A random province in " + Text.getText(GeographyDB.getName(id)) + getWhereProvinceString();
             }
         }
 
 
         protected String getCountry(String tag) {
-            if (tag.equals("-1")) {
-                return "a random country";
-            } else if (tag.equals("-3")) {
-                return "the same country";
-            } else if (tag.equals("-4")) {
-                return "a different random country";
-            } else if (tag.equals("-6")) {
-                return "the Holy Roman Emperor";
-            } else if (tag.equals("-7")) {
-                return "a random elector";
-            } else if (tag.equals("-9")) {
-                return "a different random elector";
-            } else if (tag.equals("-10")) {
-                return "the overlord";
-            } else if (tag.equals("-11")) {
-                return "a random country with the same religion";
-            } else if (tag.equals("-12")) {
-                return "a random country in the same religious group";
-            } else {
+            if (!tag.matches("-?\\d{1,2}")) { // not a negative integer, let's hope it's a tag
                 return EventDB.formatCountry(tag);
             }
+            String ret;
+            int whichType = Integer.parseInt(tag);
+            boolean needsWhere = false;
+
+            switch (whichType) {
+                case -1:
+                    ret = "a random country";
+                    needsWhere = true;
+                    break;
+                case -3:
+                    ret = "the same country";
+                    break;
+                case -4:
+                    ret = "a different random country";
+                    needsWhere = true;
+                    break;
+                case -6:
+                    ret = "the Holy Roman Emperor";
+                    break;
+                case -7:
+                    ret = "a random elector";
+                    needsWhere = true;
+                    break;
+                case -9:
+                    ret = "a different random elector";
+                    needsWhere = true;
+                    break;
+                case -10: 
+                    ret = "the overlord";
+                    break;
+                case -11:
+                    ret = "a random country with the same religion";
+                    needsWhere = true;
+                    break;
+                case -12:
+                    ret = "a random country in the same religious group";
+                    needsWhere = true;
+                    break;
+                case -2: // capital
+                case -5: // random_not_capital
+                case -8: // random_distinct_not_capital
+                    System.out.println("Cannot use " + whichType + " to target countries in event commands");
+                    ret = "UNKNOWN";
+                    break;
+                default:
+                    System.out.println("Unknown country type in event command: " + tag);
+                    ret = "UNKNOWN";
+                    break;
+            }
+
+            if (needsWhere)
+                ret += getWhereCountryString();
+            else if (getWhere() != null)
+                System.out.println("Unexpected 'where' clause with " + tag + " in event command");
+            
+            return ret;
         }
 
         protected abstract void generateHTML(BufferedWriter out) throws IOException;
