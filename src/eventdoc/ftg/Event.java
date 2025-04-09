@@ -374,7 +374,11 @@ public class Event implements HtmlObject, EventDecision {
         System.out.println(msg);
     }
 
-    public static Comparator<Event> SORT_BY_DATE = new Comparator<Event>() {
+    /**
+     * Comparator which sorts events by date, then by death date, then by random/non-random (random after non-random), then by ID.
+     * If the event is triggered rather than using a date, then this comparator will recursively check triggers of triggers as long as necessary to find an event with a defined start date.
+     */
+    public static final Comparator<Event> SORT_BY_DATE = new Comparator<Event>() {
         private int compareDates(GregorianCalendar c1, GregorianCalendar c2) {
             if (c1 == null)
                 return (c2 == null ? 0 : 1);
@@ -383,33 +387,38 @@ public class Event implements HtmlObject, EventDecision {
 
             return c1.compareTo(c2);
         }
-
+        
+        // Recursive method to find the start date of this event through triggers
+        private GregorianCalendar getDate(Event e) {
+            if (e.date != null)
+                return e.date;
+            
+            if (EventDB.triggersOf(e.id) != null) {
+                int triggerId = EventDB.triggersOf(e.id).keySet().iterator().next();
+                return getDate(EventDB.getEvent(triggerId));
+            }
+            return null;
+        }
+        
         @Override
         public int compare(Event o1, Event o2) {
-            int ret = compareDates(o1.date, o2.date);
-            if (ret == 0)
-                ret = compareDates(o1.deathdate, o2.deathdate);
-            if (ret == 0) {
-                // neither has a date (or both have the same)
-                if (o1.isRandom())
-                    ret = (o2.isRandom() ? 0 : 1);
-                else if (o2.isRandom())
-                    ret = -1;
-            }
-            if (ret == 0) {
-                if (EventDB.triggersOf(o1.id) != null) {
-                    if (EventDB.triggersOf(o2.id) != null) {
-                        int id1 = EventDB.triggersOf(o1.id).keySet().iterator().next();
-                        int id2 = EventDB.triggersOf(o2.id).keySet().iterator().next();
-                        if (id1 != id2 && !(o1.id == id1 && o2.id == id2) && !(o1.id == id2 && o2.id == id1)) {
-                            ret = compare(EventDB.getEvent(id1), EventDB.getEvent(id2));
-                        }
-                    }
-                }
-            }
-            if (ret == 0)
-                ret = Text.getText(o1.getName()).compareTo(Text.getText(o2.getName()));
-            return ret;
+            if (o1 == o2)
+                return 0;
+
+            int ret = compareDates(getDate(o1), getDate(o2));
+            if (ret != 0)
+                return ret;
+
+            ret = compareDates(o1.deathdate, o2.deathdate);
+            if (ret != 0)
+                return ret;
+
+            if (o1.isRandom() && !o2.isRandom())
+                return 1;
+            if (!o1.isRandom() && o2.isRandom())
+                return -1;
+
+            return Integer.compare(o1.id, o2.id);
         }
     };
     
