@@ -147,7 +147,7 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new ProvinceCultureTrigger(scanner));
                     } else if (ident.equals("neighbour")) {
                         triggers.add(new NeighbourTrigger(scanner));
-                    } else if (ident.equals("region")) { /* New FTG triggers below here */
+                    } else if (ident.equals("region")) {            /* New FTG triggers below here */
                         triggers.add(new RegionTrigger(scanner));
                     } else if (ident.equals("area")) {
                         triggers.add(new AreaTrigger(scanner));
@@ -197,7 +197,7 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new CityCultureTrigger(scanner));
                     } else if (ident.equals("truce")) {
                         triggers.add(new TruceTrigger(scanner));
-                    } else if (ident.equals("union")) {
+                    } else if (ident.equals("union")) {             /* FTG 1.3 triggers */
                         scanner.nextToken();
                         scanner.pushBack();
                         if (scanner.lastToken() == TokenType.LBRACE)
@@ -276,6 +276,22 @@ abstract class CombinedTrigger extends Trigger {
                         triggers.add(new AnyGeographyTrigger(scanner, "have discovered"));
                     } else if (ident.equals("custom_tooltip")) {
                         triggers.add(new CustomTooltipTrigger(scanner, parent));
+                    } else if (ident.equals("is_hre")) {
+                        triggers.add(new IsHreTrigger(scanner));
+                    } else if (ident.equals("frontier")) {
+                        triggers.add(new IsFrontierTrigger(scanner));
+                    } else if (ident.equals("knows")) {
+                        triggers.add(new DiscoveredCountryTrigger(scanner));
+                    } else if (ident.equals("armysize")) {
+                        triggers.add(new ArmySizeTrigger(scanner));
+                    } else if (ident.equals("navysize")) {
+                        triggers.add(new NavySizeTrigger(scanner));
+                    } else if (ident.equals("income_monthly")) {
+                        triggers.add(new IncomeMonthlyTrigger(scanner));
+                    } else if (ident.equals("income_yearly")) {
+                        triggers.add(new IncomeYearlyTrigger(scanner));
+                    } else if (ident.equals("is_production_leader")) {
+                        triggers.add(new ProductionLeaderTrigger(scanner));
                     } else if (ident.length() == 3) {
                         // assume it's a country trigger
                         triggers.add(new OtherCountryTrigger(scanner, parent, ident));
@@ -1879,3 +1895,96 @@ class CustomTooltipTrigger extends CombinedTrigger {
     }
 }
 
+class IsHreTrigger extends IntTrigger {
+    IsHreTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_PROVINCE_HRE"), ProvinceDB.format(value)));
+    }
+}
+class IsFrontierTrigger extends BooleanTrigger {
+    IsFrontierTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        if (value)
+            out.write(Text.getTextCleaned("TRIGGER_FRONTIER"));
+        else
+            out.write(Text.getTextCleaned("TRIGGER_FRONTIER_NOT"));
+    }
+}
+
+class DiscoveredCountryTrigger extends StringTrigger {
+    DiscoveredCountryTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_DISCOVERED_COUNTRY"), EventDB.formatCountry(value)));
+    }
+}
+
+class ArmySizeTrigger extends IntTrigger {
+    ArmySizeTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_ARMY_SIZE"), value));
+    }
+}
+
+class NavySizeTrigger extends IntTrigger {
+    NavySizeTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_NAVY_SIZE"), value));
+    }
+}
+
+class IncomeMonthlyTrigger extends IntTrigger {
+    IncomeMonthlyTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_INCOME_MONTHLY"), value));
+    }
+}
+
+class IncomeYearlyTrigger extends IntTrigger {
+    IncomeYearlyTrigger(EUGScanner s) {
+        super(s);
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_INCOME_YEARLY"), value));
+    }
+}
+
+class ProductionLeaderTrigger extends StringTrigger {
+    ProductionLeaderTrigger(EUGScanner s) {
+        super(s);
+        
+        value = Text.getText("goods_" + value);
+        if (value.startsWith("goods_"))
+            warn("Unknown goods type \"" + value + "\" in is_production_leader trigger", s.getLine(), s.getColumn());
+    }
+
+    @Override
+    public void generateHTML(BufferedWriter out) throws IOException {
+        out.write(String.format(Text.getTextCleaned("TRIGGER_IS_PRODUCTION_LEADER"), value));
+    }
+}
