@@ -761,10 +761,6 @@ class EventDB {
 
             writePageStart(output);
             output.newLine();
-
-            output.write("<div class=\"index\">");
-            output.newLine();
-
             
             // Top index
             output.write("<div class=\"index\" id=\"index\">");
@@ -982,7 +978,7 @@ class EventDB {
         try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(lookup), StandardCharsets.UTF_8.name()))) {
             writeHeader("Event Flags", output, true, true, true);
 
-            output.write("<body>");
+            output.write("<body onload=\"toggle('eventlist')\">");
             output.newLine();
 
             writePageStart(output);
@@ -992,6 +988,23 @@ class EventDB {
             output.newLine();
 
             output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">Event Flags</a></h2></div>");
+            output.newLine();
+            output.write("<div class=\"index_body\">");
+            output.newLine();
+            
+            output.write("<a href=\"javascript:toggle('eventlist')\">Toggle table of contents</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<div class=\"eventlist\" id=\"eventlist\">");
+            output.newLine();
+            
+            output.write(EventFlag.getIndexHtml());
+            
+            output.write("</div> <!-- End of flag list -->");
+            output.newLine();
+            output.write("<br />");
+            output.newLine();
+            output.write("</div> <!-- End of index body -->");
             output.newLine();
             
             output.write(EventFlag.getTableHtml());

@@ -59,8 +59,23 @@ public class EventFlag {
         return "<a href=../eventflags.htm#flag" + flag + " class='a_und'>" + flagFormattedName + "</a>";
     }
     
-    static String getTableHtml() {
+    static String getIndexHtml() {
         StringBuilder sb = new StringBuilder(database.size() * 100);
+        database.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            EventFlag e = entry.getValue();
+            
+            String flagFormattedName = e.flagName;
+            if (e.flagName.matches("\\d+"))
+                flagFormattedName = e.flagName + " (" + Text.getTextCleaned("EE_FLAG_" + e.flagName) + ")";
+            
+            sb.append("<b><a href=\"#flag").append(e.flagName).append("\">").append(flagFormattedName).append("</a></b><br />\n");
+        });
+                
+        return sb.toString();
+    }
+    
+    static String getTableHtml() {
+        StringBuilder sb = new StringBuilder(database.size() * 200);
         
         database.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
             EventFlag e = entry.getValue();
