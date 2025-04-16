@@ -141,14 +141,34 @@ ul.trigger {
 
 .event_flag_table_wrapper {
 	overflow-y: auto;
-	max-height: 25em;
+	max-height: 30em;
 	width: fit-content;
+	border-bottom: thin ridge gold;
 }
 
 .event_flag_table_wrapper td {
 	vertical-align: top;
 	text-align: left;
-	padding-right: 0.5em;
+	padding: 0.5em;
+	min-width: 25em;
+	border: thin ridge gold;
+}
+
+.event_flag_table_wrapper td, .event_flag_table_wrapper th {
+	border-bottom: thin ridge gold;
+	border-right: thin ridge gold;
+	border-left: thin ridge gold;
+}
+
+.event_flag_table_wrapper table {
+	border-spacing: 0px;
+	border-left: thin ridge gold;
+}
+
+.event_flag_table_wrapper th {
+	border-top: thin ridge gold;
+	top: 0;
+	padding: 1em;
 }
 
 
