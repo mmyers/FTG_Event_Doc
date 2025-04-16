@@ -61,7 +61,7 @@ public class EventFlag {
     
     static String getIndexHtml() {
         StringBuilder sb = new StringBuilder(database.size() * 100);
-        database.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+        database.entrySet().stream().sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)).forEach(entry -> {
             EventFlag e = entry.getValue();
             
             String flagFormattedName = e.flagName;
@@ -77,7 +77,7 @@ public class EventFlag {
     static String getTableHtml() {
         StringBuilder sb = new StringBuilder(database.size() * 200);
         
-        database.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+        database.entrySet().stream().sorted(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)).forEach(entry -> {
             EventFlag e = entry.getValue();
             sb.append("<div class=\"event_flag_wrapper\">\n");
             
@@ -88,7 +88,7 @@ public class EventFlag {
             sb.append("<h2><a id='flag").append(e.flagName).append("' class='event_title'>").append(flagFormattedName).append("</a></h2>\n");
             
             sb.append("<div class=\"event_flag_table_wrapper\">\n");
-            sb.append("<table>\n<tr><th>Set by</th><th>Cleared by</th><th>Triggers</th></tr>\n");
+            sb.append("<table>\n<tr><th>Set by</th><th>Cleared by</th><th>Used by</th></tr>\n");
             sb.append("<tr>");
             StringBuilder sets = new StringBuilder(e.sets.size() * 50);
             for (Action act : e.sets) {
@@ -97,7 +97,7 @@ public class EventFlag {
                     sets.append(EventDB.makeSubfolderLink(evtDec.getId()));
                 else
                     sets.append(EventDB.makeSubfolderDecisionLink(evtDec.getId()));
-                sets.append("<br>");
+                sets.append("<br>\n");
             }
             if (e.sets.isEmpty()) {
                 sets.append("(none)");
@@ -111,7 +111,7 @@ public class EventFlag {
                     clears.append(EventDB.makeSubfolderLink(evtDec.getId()));
                 else
                     clears.append(EventDB.makeSubfolderDecisionLink(evtDec.getId()));
-                clears.append("<br>");
+                clears.append("<br>\n");
             }
             if (e.clears.isEmpty()) {
                 clears.append("(none)");
@@ -128,7 +128,7 @@ public class EventFlag {
                     triggered.append(EventDB.makeSubfolderLink(evtDec.getId()));
                 else
                     triggered.append(EventDB.makeSubfolderDecisionLink(evtDec.getId()));
-                triggered.append("<br>");
+                triggered.append("<br>\n");
             }
             if (e.triggerIf.isEmpty()) {
                 triggered.append("(none)");
