@@ -64,7 +64,7 @@ public class LeaderDB {
                         }
                         Leader l = new Leader(scanner, tag);
                         if (allLeaders.get(l.id) != null) {
-                            System.out.println("Leader ID conflict: " + l.name + " and " + allLeaders.get(l.id).name + " both have ID " + l.id);
+                            System.out.println("Leader ID conflict: " + l.name + " (" + l.tag + ") and " + allLeaders.get(l.id).name + " (" + allLeaders.get(l.id).tag + ") both have ID " + l.id);
                         }
                         allLeaders.put(l.id, l);
                         break;

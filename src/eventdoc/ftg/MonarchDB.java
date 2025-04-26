@@ -68,7 +68,7 @@ public class MonarchDB {
                         }
                         Monarch m = new Monarch(scanner, tag);
                         if (allMonarchs.get(m.id) != null) {
-                            System.out.println("Monarch ID conflict: " + m.name + " and " + allMonarchs.get(m.id).name + " both have ID " + m.id);
+                            System.out.println("Monarch ID conflict: " + m.name + " (" + m.tag + ") and " + allMonarchs.get(m.id).name + " (" + allMonarchs.get(m.id).tag + ") both have ID " + m.id);
                         }
                         allMonarchs.put(m.id, m);
                         break;
