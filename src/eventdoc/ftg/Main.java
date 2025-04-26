@@ -66,7 +66,7 @@ public class Main {
             System.out.println("Mod directory is " + resolver.getModDirName());
         }
 
-        if (eventFiles.isEmpty()) {
+        if (eventFiles.isEmpty() && extraEventFiles.isEmpty()) {
             System.err.println("No event file specified.");
             printUsage();
             System.exit(0);
