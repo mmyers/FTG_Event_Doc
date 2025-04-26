@@ -90,8 +90,14 @@ public class EventFlag {
             sb.append("<div class=\"event_flag_table_wrapper\">\n");
             sb.append("<table>\n<tr><th>Set by</th><th>Cleared by</th><th>Used by</th></tr>\n");
             sb.append("<tr>");
+            
+            // Sets
             StringBuilder sets = new StringBuilder(e.sets.size() * 50);
-            for (Action act : e.sets) {
+            
+            List<Action> setsList = new ArrayList<>(e.sets);
+            Collections.sort(setsList, (a1, a2) -> Integer.compare(a1.getParent().getId(), a2.getParent().getId()));
+            
+            for (Action act : setsList) {
                 EventDecision evtDec = act.getParent();
                 if (evtDec instanceof Event)
                     sets.append(EventDB.makeSubfolderLink(evtDec.getId()));
@@ -104,8 +110,13 @@ public class EventFlag {
             }
             appendTD(sb, sets);
             
+            // Clears
             StringBuilder clears = new StringBuilder(e.clears.size() * 50);
-            for (Action act : e.clears) {
+            
+            List<Action> clearsList = new ArrayList<>(e.clears);
+            Collections.sort(clearsList, (a1, a2) -> Integer.compare(a1.getParent().getId(), a2.getParent().getId()));
+            
+            for (Action act : clearsList) {
                 EventDecision evtDec = act.getParent();
                 if (evtDec instanceof Event)
                     clears.append(EventDB.makeSubfolderLink(evtDec.getId()));
@@ -118,11 +129,12 @@ public class EventFlag {
             }
             appendTD(sb, clears);
             
+            // Triggers
             StringBuilder triggered = new StringBuilder(e.triggerIf.size() * 50);
+            
             List<EventDecision> triggerIf = new ArrayList<>(e.triggerIf);
-            Collections.sort(triggerIf, (o1, o2) -> {
-                return Integer.compare(o1.getId(), o2.getId()); // probably should sort decisions and events separately too
-            });
+            Collections.sort(triggerIf, (o1, o2) -> Integer.compare(o1.getId(), o2.getId())); // probably should sort decisions and events separately too
+            
             for (EventDecision evtDec : triggerIf) {
                 if (evtDec instanceof Event)
                     triggered.append(EventDB.makeSubfolderLink(evtDec.getId()));
