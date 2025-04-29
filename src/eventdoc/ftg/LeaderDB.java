@@ -11,13 +11,12 @@ import eug.parser.TokenType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -28,6 +27,9 @@ import java.util.regex.Pattern;
 public class LeaderDB {
 
     private static final Map<Integer, Leader> allLeaders = new HashMap<>(5000);
+    
+    private static final Map<Integer, List<EventDecision>> allWakes = new HashMap<>();
+    private static final Map<Integer, List<EventDecision>> allSleeps = new HashMap<>();
     
     public static void init(String directory) {
         System.out.println("Parsing leaders from " + directory);
@@ -171,10 +173,33 @@ public class LeaderDB {
         return allLeaders.get(leaderId) != null && allLeaders.get(leaderId).dormant;
     }
     
+    
+    static void addSleep(int leaderId, EventDecision evtDec) {
+        List<EventDecision> evtSleeps = allSleeps.get(leaderId);
+        if (evtSleeps == null) {
+            evtSleeps = new ArrayList<>();
+            allSleeps.put(leaderId, evtSleeps);
+        }
+        
+        if (!evtSleeps.contains(evtDec))
+            evtSleeps.add(evtDec);
+    }
+    
+    static void addWake(int leaderId, EventDecision evtDec) {
+        List<EventDecision> evtWakes = allWakes.get(leaderId);
+        if (evtWakes == null) {
+            evtWakes = new ArrayList<>();
+            allWakes.put(leaderId, evtWakes);
+        }
+        
+        if (!evtWakes.contains(evtDec))
+            evtWakes.add(evtDec);
+    }
+    
     public static String getTableHtml() {
         StringBuilder sb = new StringBuilder(allLeaders.size() * 50);
         sb.append("<div class=\"table-wrapper\">\n");
-        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Category</th><th>Rank</th><th>Start</th><th>End</th><th>Movement</th><th>Fire</th><th>Shock</th><th>Siege</th><th>Total</th><th>Total without siege</th><th>Dormant</th><th>Location</th><th>Remark</th></tr>\n");
+        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Category</th><th>Rank</th><th>Start</th><th>End</th><th>Movement</th><th>Fire</th><th>Shock</th><th>Siege</th><th>Total</th><th>Total without siege</th><th>Dormant</th><th>Woken by</th><th>Slept by</th><th>Location</th><th>Remark</th></tr>\n");
         
         allLeaders.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> {
             sb.append("<tr>");
@@ -193,6 +218,8 @@ public class LeaderDB {
             appendTD(sb, l.movement + l.fire + l.shock + l.siege);
             appendTD(sb, l.movement + l.fire + l.shock);
             appendTD(sb, l.dormant ? "Yes" : "");
+            appendTD(sb, getEventLinkList(allWakes.get(l.id)));
+            appendTD(sb, getEventLinkList(allSleeps.get(l.id)));
             appendTD(sb, l.location > 0 ? ProvinceDB.format(l.location) : "");
             appendTD(sb, l.remark == null ? "" : l.remark);
             sb.append("</tr>\n");
@@ -205,6 +232,23 @@ public class LeaderDB {
     }
     private static void appendTD(StringBuilder sb, Object value) {
         sb.append("<td>").append(value).append("</td>");
+    }
+    private static String getEventLinkList(List<EventDecision> evts) {
+        if (evts == null)
+            return "";
+        
+        StringBuilder ret = new StringBuilder(evts.size() * 80);
+        
+        Collections.sort(evts, EventDB.SORT_BY_DATE_DECISIONS_FIRST);
+        for (EventDecision e : evts) {
+            if (e instanceof Decision) {
+                ret.append(EventDB.makeSubfolderDecisionLink(e.getId()));
+            } else {
+                ret.append(EventDB.makeSubfolderLink(e.getId()));
+            }
+            ret.append("<br />");
+        }
+        return ret.toString();
     }
     
     private static class Leader {

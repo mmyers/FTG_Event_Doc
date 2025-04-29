@@ -11,11 +11,9 @@ import eug.parser.TokenType;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +27,9 @@ import java.util.regex.Pattern;
 public class MonarchDB {
     
     static final Map<Integer, Monarch> allMonarchs = new HashMap<>(5000);
+    
+    private static final Map<Integer, List<EventDecision>> allWakes = new HashMap<>();
+    private static final Map<Integer, List<EventDecision>> allSleeps = new HashMap<>();
     
 //    private static final Map<String, Map<Integer, Monarch>> byCountry =
 //            new HashMap<String, Map<Integer, Monarch>>(200);
@@ -129,10 +130,32 @@ public class MonarchDB {
         return allMonarchs.get(monarchId);
     }
     
+    static void addSleep(int monarchId, EventDecision evtDec) {
+        List<EventDecision> evtSleeps = allSleeps.get(monarchId);
+        if (evtSleeps == null) {
+            evtSleeps = new ArrayList<>();
+            allSleeps.put(monarchId, evtSleeps);
+        }
+        
+        if (!evtSleeps.contains(evtDec))
+            evtSleeps.add(evtDec);
+    }
+    
+    static void addWake(int monarchId, EventDecision evtDec) {
+        List<EventDecision> evtWakes = allWakes.get(monarchId);
+        if (evtWakes == null) {
+            evtWakes = new ArrayList<>();
+            allWakes.put(monarchId, evtWakes);
+        }
+        
+        if (!evtWakes.contains(evtDec))
+            evtWakes.add(evtDec);
+    }
+    
     public static String getTableHtml() {
         StringBuilder sb = new StringBuilder(allMonarchs.size() * 50);
         sb.append("<div class=\"table-wrapper\">\n");
-        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Start</th><th>End</th><th>DIP</th><th>ADM</th><th>MIL</th><th>Total</th><th>Dormant</th><th>May be emperor</th><th>May have royal marriages</th><th>Union</th><th>Remark</th></tr>\n");
+        sb.append("<table>\n<tr><th>ID</th><th>Name</th><th>Country</th><th>Start</th><th>End</th><th>DIP</th><th>ADM</th><th>MIL</th><th>Total</th><th>Dormant</th><th>Woken by</th><th>Slept by</th><th>May be emperor</th><th>May have royal marriages</th><th>Union</th><th>Remark</th></tr>\n");
         
         allMonarchs.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(e -> {
             sb.append("<tr>");
@@ -147,6 +170,8 @@ public class MonarchDB {
             appendTD(sb, m.MIL);
             appendTD(sb, m.DIP+m.ADM+m.MIL);
             appendTD(sb, m.dormant ? "Yes" : "");
+            appendTD(sb, getEventLinkList(allWakes.get(m.id)));
+            appendTD(sb, getEventLinkList(allSleeps.get(m.id)));
             appendTD(sb, m.emperor ? "" : "No");
             appendTD(sb, m.dynastic ? "" : "No");
             if (m.unions != null) {
@@ -177,6 +202,23 @@ public class MonarchDB {
     }
     private static void appendTD(StringBuilder sb, Object value) {
         sb.append("<td>").append(value).append("</td>");
+    }
+    private static String getEventLinkList(List<EventDecision> evts) {
+        if (evts == null)
+            return "";
+        
+        StringBuilder ret = new StringBuilder(evts.size() * 80);
+        
+        Collections.sort(evts, EventDB.SORT_BY_DATE_DECISIONS_FIRST);
+        for (EventDecision e : evts) {
+            if (e instanceof Decision) {
+                ret.append(EventDB.makeSubfolderDecisionLink(e.getId()));
+            } else {
+                ret.append(EventDB.makeSubfolderLink(e.getId()));
+            }
+            ret.append("<br />");
+        }
+        return ret.toString();
     }
     
     static class Monarch {

@@ -1099,7 +1099,7 @@ class EventDB {
     
     
     
-    private static final Comparator<Object> SORT_BY_DATE_DECISIONS_FIRST = new Comparator<Object>() {
+    static final Comparator<Object> SORT_BY_DATE_DECISIONS_FIRST = new Comparator<Object>() {
         @Override
         public int compare(Object o1, Object o2) {
             if (o1 instanceof Event && o2 instanceof Decision)

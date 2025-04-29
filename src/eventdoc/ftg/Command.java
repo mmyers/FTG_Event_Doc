@@ -174,15 +174,15 @@ public class Command {
         } else if (command.equals("sleepevent")) {
             commandType = new SleepEventCommand(scanner);
         } else if (command.equals("leader")) {
-            commandType = new LeaderCommand(scanner);
+            commandType = new LeaderCommand(scanner, parent);
         } else if (command.equals("wakeleader")) {
-            commandType = new WakeLeaderCommand(scanner);
+            commandType = new WakeLeaderCommand(scanner, parent);
         } else if (command.equals("monarch") || command.equals("wakemonarch")) {
-            commandType = new WakeMonarchCommand(scanner);
+            commandType = new WakeMonarchCommand(scanner, parent);
         } else if (command.equals("sleepleader")) {
-            commandType = new SleepLeaderCommand(scanner);
+            commandType = new SleepLeaderCommand(scanner, parent);
         } else if (command.equals("sleepmonarch")) {
-            commandType = new SleepMonarchCommand(scanner);
+            commandType = new SleepMonarchCommand(scanner, parent);
         } else if (command.equals("flagname")) {
             commandType = new FlagnameCommand(scanner);
         } else if (command.equals("add_countryculture")) {
@@ -877,8 +877,9 @@ public class Command {
     }
     
     private static class LeaderCommand extends IntCommand {
-        LeaderCommand(EUGScanner scanner) {
+        LeaderCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            LeaderDB.addWake(which, parent.getParent());
         }
 
         @Override
@@ -890,8 +891,9 @@ public class Command {
     }
     
     private static class WakeMonarchCommand extends IntCommand {
-        WakeMonarchCommand(EUGScanner scanner) {
+        WakeMonarchCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            MonarchDB.addWake(which, parent.getParent());
         }
 
         @Override
@@ -903,8 +905,9 @@ public class Command {
     }
     
     private static class WakeLeaderCommand extends IntCommand {
-        WakeLeaderCommand(EUGScanner scanner) {
+        WakeLeaderCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            LeaderDB.addWake(which, parent.getParent());
         }
 
         @Override
@@ -916,8 +919,9 @@ public class Command {
     }
     
     private static class SleepMonarchCommand extends IntCommand {
-        SleepMonarchCommand(EUGScanner scanner) {
+        SleepMonarchCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            MonarchDB.addSleep(which, parent.getParent());
         }
 
         @Override
@@ -929,8 +933,9 @@ public class Command {
     }
     
     private static class SleepLeaderCommand extends IntCommand {
-        SleepLeaderCommand(EUGScanner scanner) {
+        SleepLeaderCommand(EUGScanner scanner, Action parent) {
             super(scanner);
+            LeaderDB.addSleep(which, parent.getParent());
         }
 
         @Override
