@@ -24,7 +24,7 @@ final class ParseUtils {
     static GregorianCalendar parseDate(final EUGScanner scanner) {
         int year = 0;
         int month = 0;
-        int day = 0;
+        int day = 1;
 
         if (scanner.nextToken() != TokenType.LBRACE) {
             warn("Missing '{' in date", scanner.getLine(), scanner.getColumn());
