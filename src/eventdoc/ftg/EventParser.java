@@ -35,8 +35,8 @@ public class EventParser {
         }
     }
     
-    public List<HtmlObject> parse() {
-        final List<HtmlObject> ret = new ArrayList<>();
+    public List<EventDecision> parse() {
+        final List<EventDecision> ret = new ArrayList<>();
         
         parseLoop: while (true) {
             switch (scanner.nextToken()) {

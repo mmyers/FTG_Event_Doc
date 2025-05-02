@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  *
  * @author Michael
  */
-public class Decision implements HtmlObject, EventDecision {
+public class Decision implements EventDecision {
     
     private int id;
     private Trigger potential;

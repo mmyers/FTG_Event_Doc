@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 class EventDB {
 
-    private static final Map<String, List<HtmlObject>> eventFiles = new HashMap<>(50);
+    private static final Map<String, List<EventDecision>> eventFiles = new HashMap<>(50);
     
     private static final Map<Integer, Event> allEvents = new HashMap<>(5000);
     private static final Map<Integer, Decision> allDecisions = new HashMap<>(5000);
@@ -85,11 +85,11 @@ class EventDB {
         File file = new File(eventFile);
         System.out.println("Parsing " + file.getAbsolutePath());
         
-        List<HtmlObject> currentFile = new ArrayList<>(20);
+        List<EventDecision> currentFile = new ArrayList<>(20);
         eventFiles.put(file.getName(), currentFile);
         
-        List<HtmlObject> events = new EventParser(file).parse();
-        for (HtmlObject eventOrDec : events) {
+        List<EventDecision> events = new EventParser(file).parse();
+        for (EventDecision eventOrDec : events) {
             currentFile.add(eventOrDec);
             if (eventOrDec instanceof Event) {
                 Event event = (Event) eventOrDec;
@@ -147,7 +147,7 @@ class EventDB {
 
         for (String file : files) {
             System.out.println(file);
-            List<HtmlObject> events = eventFiles.get(file);
+            List<EventDecision> events = eventFiles.get(file);
             Collections.sort(events, SORT_BY_DATE_DECISIONS_FIRST); // must sort here again because originally we didn't have data on which events triggered which other events!
             File page = new File(directory + DOC_FOLDER + file + ".htm");
             try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
@@ -173,7 +173,7 @@ class EventDB {
                 output.write("<div class=\"eventlist\" id=\"eventlist\">");
                 output.newLine();
 
-                for (HtmlObject evtOrDec : events) {
+                for (EventDecision evtOrDec : events) {
                     if (evtOrDec instanceof Decision) {
                         output.write("Decision ");
                         output.write(makeDecisionLink(((Decision)evtOrDec).getId(), false, null, true));
@@ -213,7 +213,7 @@ class EventDB {
                 output.newLine();
 
                 // Events/Decisions
-                for (HtmlObject evt : events) {
+                for (EventDecision evt : events) {
                     evt.generateHTML(output);
                     output.newLine();
                     output.write(betweenEvents);
@@ -654,13 +654,14 @@ class EventDB {
             output.write("<div class=\"index_body\">");
             output.newLine();
             
-            List<Integer> allIds = new ArrayList<>(allEvents.keySet());
+            List<Integer> allIds = allEvents.entrySet().stream()
+                    .filter(entry -> !entry.getValue().isAIOnly())
+                    .map(entry -> entry.getKey())
+                    .collect(Collectors.toList());
             Collections.sort(allIds);
 
             for (Integer id : allIds) {
                 Event e = allEvents.get(id);
-                if ("AI_EVENT".equals(e.getName()))
-                    continue;
 
                 output.write(makeLink(id, true, DOC_FOLDER, true));
                 output.write("<br />");
@@ -716,13 +717,12 @@ class EventDB {
             output.write("<div class=\"index_body\">");
             output.newLine();
 
-            List<Event> events = new ArrayList<>(allEvents.values());
+            List<Event> events = allEvents.values().stream()
+                    .filter(e -> !e.isAIOnly())
+                    .collect(Collectors.toList());
             Collections.sort(events, Event.SORT_BY_DATE);
 
             for (Event evt : events) {
-                if ("AI_EVENT".equals(evt.getName()))
-                    continue;
-                
                 writeEventYear(evt, output);
                 output.write(makeLink(evt.getId(), true, DOC_FOLDER, false));
                 output.write("<br />");
@@ -775,7 +775,7 @@ class EventDB {
             output.write("<div class=\"eventlist\" id=\"eventlist\">");
             output.newLine();
 
-            List<String> allCountryTags = new ArrayList<>(allEvents.values().stream().filter(e -> !"AI_EVENT".equals(e.getName())).map(e -> e.getTag()).distinct().collect(Collectors.toList()));
+            List<String> allCountryTags = new ArrayList<>(allEvents.values().stream().filter(e -> !e.isAIOnly()).map(e -> e.getTag()).distinct().collect(Collectors.toList()));
             Collections.sort(allCountryTags, (t1, t2) -> {
                 return Text.getText(t1).compareTo(Text.getText(t2)); // sort by name, not by tag
             });
@@ -784,11 +784,11 @@ class EventDB {
                 if (tag == null || tag.isEmpty())
                     continue;
                 output.write("<b><a href=\"#" + tag + "\">" + Text.getText(tag) + "</a></b>");
-                long numEvts = allEvents.values().stream().filter(e -> tag.equals(e.getTag())).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+                long numEvts = allEvents.values().stream().filter(e -> tag.equals(e.getTag())).filter(e -> !e.isAIOnly()).count();
                 output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
             }
             
-            List<Integer> allEventProvs =  new ArrayList<>(allEvents.values().stream().filter(e -> !"AI_EVENT".equals(e.getName())).map(e -> e.getProvince()).distinct().collect(Collectors.toList()));
+            List<Integer> allEventProvs =  new ArrayList<>(allEvents.values().stream().filter(e -> !e.isAIOnly()).map(e -> e.getProvince()).distinct().collect(Collectors.toList()));
             Collections.sort(allEventProvs, (id1, id2) -> {
                 return Text.getText(ProvinceDB.getName(id1)).compareTo(Text.getText(ProvinceDB.getName(id2)));
             });
@@ -799,13 +799,13 @@ class EventDB {
                 if (provId <= 0)
                     continue;
                 output.write("<b><a href=\"#prov" + provId + "\">" + Text.getText(ProvinceDB.getName(provId)) + "</a></b>");
-                long numEvts = allEvents.values().stream().filter(e -> provId == e.getProvince()).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+                long numEvts = allEvents.values().stream().filter(e -> provId == e.getProvince()).filter(e -> !e.isAIOnly()).count();
                 output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
             }
             
             output.write("<hr />\n");
             output.write("<b><a href=\"#global\">All Countries</a></b>");
-            long numEvts = allEvents.values().stream().filter(e -> e.getTag() == null && e.getProvince() < 0).filter(e -> !"AI_EVENT".equals(e.getName())).count();
+            long numEvts = allEvents.values().stream().filter(e -> e.getTag() == null && e.getProvince() < 0).filter(e -> !e.isAIOnly()).count();
             output.write(" (" + numEvts + " event" + (numEvts > 1 ? "s" : "") + ")<br />\n");
             
 
@@ -835,7 +835,7 @@ class EventDB {
             int lastProv = -1;
             boolean printedAllCountries = false;
             for (Event evt : events) {
-                if ("AI_EVENT".equals(evt.getName()))
+                if (evt.isAIOnly())
                     continue;
                 
                 // print some header stuff if this is the first event for this country or province

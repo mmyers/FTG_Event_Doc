@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class Event implements HtmlObject, EventDecision {
+public class Event implements EventDecision {
 
     private int id;
     private Trigger trigger;
@@ -133,6 +133,12 @@ public class Event implements HtmlObject, EventDecision {
     public boolean isRandom() {
         return random;
     }
+    
+    public boolean isGlobal() {
+        return global;
+    }
+    
+    public boolean isAIOnly() {
 
     public GregorianCalendar getStartDate() {
         return date;
