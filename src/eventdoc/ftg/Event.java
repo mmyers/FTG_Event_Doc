@@ -139,6 +139,8 @@ public class Event implements EventDecision {
     }
     
     public boolean isAIOnly() {
+        return name.equals("AI_EVENT");
+    }
 
     public GregorianCalendar getStartDate() {
         return date;
@@ -157,7 +159,7 @@ public class Event implements EventDecision {
         
         out.write("<div class=\"event\">");
         out.newLine();
-        out.write("<div class=\"event_head\"><h2><a id=\"evt" + id + "\" class=\"event_title\">" + id + ". " + Text.getText(name) + "</a></h2></div>");
+        out.write("<div class=\"event_head\"><h2><a id=\"evt" + id + "\" class=\"event_title\" title=\"" + EventDB.getFileForEvent(id) + "\">" + id + ". " + Text.getText(name) + "</a></h2></div>");
         out.newLine();
         out.write("<div class=\"event_body\">");
         out.newLine();

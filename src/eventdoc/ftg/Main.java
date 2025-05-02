@@ -127,7 +127,7 @@ public class Main {
             return;
         
         
-        EventDB.generateHTML(outputDir);
+        EventDB.generateHTMLByCountry(outputDir);
 
         if (! new File(".").equals(new File(outputDir))) {
             try {

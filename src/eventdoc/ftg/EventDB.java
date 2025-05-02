@@ -115,6 +115,13 @@ class EventDB {
     public static Event getEvent(int id) {
         return allEvents.get(id);
     }
+    
+    /**
+     * Returns the original filename that the event was read from.
+     */
+    public static String getFileForEvent(int id) {
+        return eventsInFiles.get(id);
+    }
 
     private static void writePageStart(BufferedWriter output) throws IOException {
         output.write("<!-- Custom page start content -->");
@@ -276,6 +283,190 @@ class EventDB {
 
         System.out.println("Finished creating HTML");
     }
+    
+    static void generateHTMLByCountry(String directory) {
+        System.out.println("Creating HTML...");
+
+        File folder = new File(directory + DOC_FOLDER);
+        if (!folder.exists())
+            folder.mkdir();
+        
+        List<String> allTags = allEvents.values().stream()
+                .filter(e -> !e.isAIOnly())
+                .map(e -> e.getTag())
+                .distinct()
+                .sorted((tag1, tag2) -> Text.getText(tag1).compareTo(Text.getText(tag2)))
+                .collect(Collectors.toList());
+
+        for (String tag : allTags) {
+            if (tag == null)
+                continue;
+            
+            String countryName = Text.getText(tag);
+            System.out.println(countryName);
+            List<HtmlObject> events = allEvents.values().stream()
+                    .filter(e -> tag.equals(e.getTag()))
+                    .filter(e -> !e.isAIOnly())
+                    .collect(Collectors.toList());
+            
+            writeEventsFile(events, directory, tag, countryName);
+        }
+        
+        List<HtmlObject> globals = allEvents.values().stream()
+                .filter(e -> e.isGlobal() || (e.getTag() == null && e.getProvince() == -1 && !e.isRandom()))
+                .filter(e -> !e.isAIOnly())
+                .collect(Collectors.toList());
+        globals.addAll(allDecisions.values());
+        if (!globals.isEmpty()) {
+            writeEventsFile(globals, directory, "global", "all countries");
+        }
+        
+        List<HtmlObject> random = allEvents.values().stream()
+                .filter(e -> e.isRandom() && e.getTag() == null)
+                .filter(e -> !e.isAIOnly())
+                .collect(Collectors.toList());
+        if (!globals.isEmpty()) {
+            writeEventsFile(random, directory, "random", "all countries");
+        }
+        
+        List<HtmlObject> provEvents = allEvents.values().stream()
+                .filter(e -> e.getProvince() != -1)
+                .filter(e -> !e.isAIOnly())
+                .collect(Collectors.toList());
+        if (!globals.isEmpty()) {
+            writeEventsFile(provEvents, directory, "provincespec", "specific provinces");
+        }
+
+        System.out.println(INDEX_NAME);
+        //writeIndex(directory, files);
+        writeIndexByCountry(directory);
+
+        System.out.println(ALL_EVENTS_INDEX_NAME);
+        writeLookupPage(directory);
+        System.out.println(ALL_EVENTS_BY_YEAR_INDEX_NAME);
+        writeYearlyLookupPage(directory);
+        //System.out.println(ALL_EVENTS_BY_COUNTRY_INDEX_NAME);
+        //writeCountryLookupPage(directory);
+        
+        System.out.println(MONARCHS_INDEX_NAME);
+        writeMonarchTable(directory);
+        
+        System.out.println(LEADERS_INDEX_NAME);
+        writeLeaderTable(directory);
+        
+        System.out.println(EVENT_FLAG_INDEX_NAME);
+        writeEventFlagTable(directory);
+
+        System.out.println("Finished creating HTML");
+    }
+
+    private static void writeEventsFile(List<HtmlObject> events, String directory, String tag, String countryName) {
+        Collections.sort(events, SORT_BY_DATE_DECISIONS_FIRST); // must sort here again because originally we didn't have data on which events triggered which other events!
+        File page = new File(directory + DOC_FOLDER + tag + ".htm");
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(page), StandardCharsets.UTF_8.name()))) {
+            writeHeader(countryName, output, false, false, true);
+            output.write("<body onload=\"toggle('eventlist')\">");
+            output.newLine();
+            
+            writePageStart(output);
+            output.newLine();
+            
+            // Top index
+            output.write("<div class=\"index\" id=\"index\">");
+            output.newLine();
+            output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">");
+            output.write("Events and decisions for " + countryName);
+            output.write("</a></h2></div>");
+            output.newLine();
+            output.write("<div class=\"index_body\">");
+            output.newLine();
+            output.write("<a href=\"javascript:toggle('eventlist')\">Toggle table of contents</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<div class=\"eventlist\" id=\"eventlist\">");
+            output.newLine();
+            
+            for (HtmlObject evtOrDec : events) {
+                if (evtOrDec instanceof Decision) {
+                    output.write("Decision ");
+                    output.write(makeDecisionLink(((Decision)evtOrDec).getId(), false, null, true));
+                    output.write("<br />");
+                    output.newLine();
+                    continue;
+                }
+                if (!(evtOrDec instanceof Event))
+                    continue;
+                Event evt = (Event) evtOrDec;
+                writeEventYear(evt, output);
+                output.write(makeLink(evt.getId(), false, null, false));
+                output.write("<br />");
+                output.newLine();
+            }
+            
+            output.write("</div> <!-- End of event list -->");
+            output.newLine();
+            output.write("<br />");
+            output.newLine();
+            
+            output.write("</div> <!-- End of index body -->");
+            output.newLine();
+            
+            output.write("<div class=\"index_footer\">");
+            output.newLine();
+            output.write("<p><a href=\"../" + INDEX_NAME + "\">Back to Index</a></p>");
+            output.newLine();
+            output.write("</div> <!-- End of index footer -->");
+            output.newLine();
+            
+            output.write("</div> <!-- End of index -->");
+            output.newLine();
+            
+            output.newLine();
+            output.write("<div class=\"main\">");
+            output.newLine();
+            
+            // Events/Decisions
+            for (HtmlObject evt : events) {
+                evt.generateHTML(output);
+                output.newLine();
+                output.write(betweenEvents);
+                output.newLine();
+                output.newLine();
+            }
+            
+            output.write("<div class=\"index\">");
+            output.newLine();
+            output.write("<div class=\"index_head\"><h2><span class=\"index_title\">");
+            output.write("Events and decisions for " + countryName);
+            output.write("</span></h2></div>");
+            output.newLine();
+            output.write("<div class=\"index_body\"></div> <!-- This must be present for the borders to work. -->");
+            output.newLine();
+            output.write("<div class=\"index_footer\">");
+            output.newLine();
+            output.write("<p><a href=\"../" + INDEX_NAME + "\">Back to index</a><br />");
+            output.newLine();
+            output.write("<a href=\"#top\">Back to top</a></p>");
+            output.newLine();
+            output.write("</div> <!-- End of index footer -->");
+            output.newLine();
+            output.write("</div> <!-- End of bottom index -->");
+            output.newLine();
+            
+            output.write("</div> <!-- End of main div -->");
+            output.newLine();
+            
+            output.newLine();
+            writePageEnd(output);
+            
+            output.write("</body>");
+            output.newLine();
+            output.write("</html>");
+            output.newLine();
+        } catch (IOException ex) {
+            System.err.println("Error writing to " + page + "\nPlease ensure output folder exists.");
+        }
+    }
 
     private static void writeEventYear(Event evt, final BufferedWriter output) throws IOException {
         if (evt.isRandom()) {
@@ -352,23 +543,28 @@ class EventDB {
      * @return an HTML string representing a link to the event.
      */
     static final String makeLink(int eventID, boolean underlined, String dir, boolean includeID) {
-        String tag = null;
-        int province = -1;
-
-        String filename = eventsInFiles.get(eventID);
-        
         Event event = allEvents.get(eventID);
         
-        if (event != null) {
-            tag = event.getTag();
-            if (tag == null)
-                province = event.getProvince();
-        }
-        
-        if (filename == null) {
+        if (event == null) {
             System.out.println("Cannot find event " + eventID);
             return "<span class=\"error\" title=\"Event&nbsp;not&nbsp;found\">"+eventID+"</span>";
         }
+        
+        int province = -1;
+        String tag = event.getTag();
+        if (tag == null)
+            province = event.getProvince();
+
+        String filename;
+        
+        if (tag != null)
+            filename = tag;
+        else if (event.isRandom())
+            filename = "random";
+        else if (event.isGlobal() || province == -1)
+            filename = "global";
+        else
+            filename = "provincespec";
 
         if (dir != null) {
             filename = dir + filename;
@@ -406,13 +602,13 @@ class EventDB {
     }
     
     static final String makeDecisionLink(int decisionID, boolean underlined, String dir, boolean includeID) {
-        String filename = decisionsInFiles.get(decisionID);
+        String filename = "global";
         
-        if (filename == null) {
+        if (!allDecisions.containsKey(decisionID)) {
             System.out.println("Cannot find decision " + decisionID);
             return "<span class=\"error\" title=\"Decision&nbsp;not&nbsp;found\">"+decisionID+"</span>";
         }
-
+        
         if (dir != null) {
             filename = dir + filename;
         }
@@ -602,6 +798,75 @@ class EventDB {
             output.write("<br />");
             output.write("<br />");
             output.newLine();
+            output.write("<a href=\"" + MONARCHS_INDEX_NAME + "\" class=\"a_und\">Table of monarchs</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<a href=\"" + LEADERS_INDEX_NAME + "\" class=\"a_und\">Table of leaders</a>");
+            output.newLine();
+
+            output.write("<br /><br />");
+            output.newLine();
+            output.write("Generated by " + Main.NAME + " for " + Main.getModNameOrVanilla());
+            output.newLine();
+            output.write("</p></div>");
+            output.newLine();
+            output.write("</div> <!-- End of main content -->");
+            output.newLine();
+            output.newLine();
+            writePageEnd(output);
+            output.write("</body>");
+            output.newLine();
+            output.write("</html>");
+            output.newLine();
+        } catch (IOException ex) {
+            System.out.println("Error writing the index file");
+        }
+    }
+    
+    private static void writeIndexByCountry(String directory) {
+        
+        List<String> allTags = allEvents.values().stream()
+                .filter(e -> !e.isAIOnly())
+                .map(e -> e.getTag())
+                .distinct()
+                .filter(t -> t != null)
+                .sorted((tag1, tag2) -> Text.getText(tag1).compareTo(Text.getText(tag2)))
+                .collect(Collectors.toList());
+        
+        File index = new File(directory + INDEX_NAME);
+        try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(index), StandardCharsets.UTF_8.name()))) {
+            writeHeader("Index", output, true, false, false);
+            output.write("<body>");
+            output.newLine();
+            writePageStart(output);
+            output.newLine();
+            output.write("<div class=\"index\">");
+            output.newLine();
+            output.write("<div class=\"index_head\"><h2><a id=\"top\" class=\"index_title\">Index</a></h2></div>");
+            output.newLine();
+            output.write("<div class=\"index_body\">");
+            output.newLine();
+            for (String tag : allTags) {
+                long num = allEvents.values().stream().filter(e -> tag.equals(e.getTag())).filter(e -> !e.isAIOnly()).count();
+                String events = (num == 1 ? "1 event" : (num + " events"));
+                output.write("<a href=\"" + DOC_FOLDER + tag + ".htm\"><b>" + Text.getText(tag) + "</b></a> (" + events + ")<br />");
+                output.newLine();
+            }
+            output.write("</div> <!-- End of list -->");
+            output.newLine();
+
+            output.write("<div class=\"index_footer\"><p>");
+            output.newLine();
+            output.write("<a href=\"" + ALL_EVENTS_INDEX_NAME + "\" class=\"a_und\">List of all events by ID</a>");
+            output.write("<br />");
+            output.newLine();
+            output.write("<a href=\"" + ALL_EVENTS_BY_YEAR_INDEX_NAME + "\" class=\"a_und\">List of all events by year</a>");
+            output.write("<br />");
+            output.newLine();
+//            output.write("<a href=\"" + ALL_EVENTS_BY_COUNTRY_INDEX_NAME + "\" class=\"a_und\">List of all events by country</a>");
+//            output.write("<br />");
+//            output.write("<br />");
+//            output.newLine();
             output.write("<a href=\"" + MONARCHS_INDEX_NAME + "\" class=\"a_und\">Table of monarchs</a>");
             output.write("<br />");
             output.newLine();
